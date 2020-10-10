@@ -1,0 +1,49 @@
+{
+    "compilerOptions": {
+        /* Visit https://aka.ms/tsconfig.json to read more about this file */
+
+        /* Advanced */
+        "forceConsistentCasingInFileNames": true,
+        "skipLibCheck": true,
+
+        /* Command Line */
+
+
+        /* Experimental */
+
+
+        /* File Inclusion */
+
+
+        /* Linter Checks */
+        "noFallthroughCasesInSwitch":  true,
+        "noImplicitReturns": true,
+        "noUnusedLocals":  true,
+        "noUnusedParameters": true,
+
+        /* Module Resolution */
+        "baseUrl": ".",
+        "esModuleInterop": true,
+        "paths": {
+            ".private/*": [".private/*"],
+            "src/*": ["src/*"]
+        },
+
+        /* Project Options */
+        "module": "commonjs",
+        "target": "esnext",
+
+        /* Source Maps */
+
+
+        /* Strict Checks */
+        "alwaysStrict":  true,
+        "noImplicitAny": true,
+        "noImplicitThis":  true,
+        "strict": true,
+        "strictBindCallApply":  true,
+        "strictFunctionTypes": true,
+        "strictNullChecks":  true,
+        "strictPropertyInitialization": true
+    }
+}
