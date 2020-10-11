@@ -21,9 +21,21 @@
             "error",
             "always-multiline"
         ],
+        "@typescript-eslint/explicit-function-return-type": [
+            "error",
+            {
+                "allowExpressions": true
+            }
+        ],
         "@typescript-eslint/indent": [
             "error",
             4
+        ],
+        "@typescript-eslint/no-type-alias": [
+            "error",
+            {
+                "allowAliases": "always"
+            }
         ],
         "@typescript-eslint/quotes": [
             "error",
@@ -43,6 +55,10 @@
         ],
         "@typescript-eslint/naming-convention": [
             "warn"
+        ],
+        "arrow-parens": [
+            "error",
+            "as-needed"
         ],
         "func-style": [
             "error",
@@ -70,6 +86,13 @@
         "quote-props": [
             "error",
             "consistent-as-needed"
+        ],
+        "sort-imports": [
+            "error",
+            {
+                "allowSeparatedGroups": true,
+                "ignoreCase": true
+            }
         ],
         "space-in-parens": "off"
     }
