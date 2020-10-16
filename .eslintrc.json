@@ -17,9 +17,19 @@
         "@typescript-eslint"
     ],
     "rules": {
+        "@typescript-eslint/array-type": [
+            "error",
+            {
+                "default": "array-simple"
+            }
+        ],
         "@typescript-eslint/comma-dangle": [
             "error",
             "always-multiline"
+        ],
+        "@typescript-eslint/consistent-type-definitions": [
+            "warn",
+            "type"
         ],
         "@typescript-eslint/explicit-function-return-type": [
             "error",
@@ -27,16 +37,57 @@
                 "allowExpressions": true
             }
         ],
-        "@typescript-eslint/indent": [
-            "error",
-            4
-        ],
-        "@typescript-eslint/no-type-alias": [
+        "@typescript-eslint/indent": "off",
+        "@typescript-eslint/naming-convention": [
             "error",
             {
-                "allowAliases": "always"
+                "selector": "default",
+                "format": ["strictCamelCase"],
+                "leadingUnderscore": "forbid",
+                "trailingUnderscore": "forbid"
+            },
+            {
+                "selector": "enumMember",
+                "format": null,
+                "custom": {
+                    "regex": "^[A-Z][a-z_]*(?:[A-Z][a-z_]+)*$",
+                    "match": true
+                }
+            },
+            {
+                "selector": "memberLike",
+                "format": ["strictCamelCase"]
+            },
+            {
+                "selector": "typeLike",
+                "format": ["PascalCase"]
+            },
+            {
+                "selector": "variable",
+                "types": ["boolean"],
+                "format": ["strictCamelCase"],
+                "prefix": ["can", "did", "has", "is", "should", "will"]
+            },
+            {
+                "selector": "variableLike",
+                "format": [
+                    "strictCamelCase",
+                    "StrictPascalCase",
+                    "UPPER_CASE"
+                ]
             }
         ],
+        "@typescript-eslint/no-shadow": "off",
+        "@typescript-eslint/no-type-alias": "off",
+        "@typescript-eslint/no-use-before-define": [
+            "error",
+            {
+                "functions": false,
+                "classes": true,
+                "variables": true
+            }
+        ],
+        "@typescript-eslint/prefer-readonly-parameter-types": "off",
         "@typescript-eslint/quotes": [
             "error",
             "single"
@@ -53,12 +104,15 @@
                 "asyncArrow": "always"
             }
         ],
-        "@typescript-eslint/naming-convention": [
-            "warn"
-        ],
         "arrow-parens": [
             "error",
             "as-needed"
+        ],
+        "camelcase": "off",
+        "capitalized-comments": "off",
+        "dot-location": [
+            "error",
+            "property"
         ],
         "func-style": [
             "error",
@@ -75,25 +129,27 @@
             "error",
             "unix"
         ],
+        "line-comment-position": "off",
         "max-len": "off",
+        "multiline-comment-style": "off",
         "no-console": "off",
+        "no-inline-comments": "off",
+        "no-undefined": "off",
         "object-curly-spacing": "off",
         "one-var": [
             "error",
             "never"
+        ],
+        "operator-linebreak": [
+            "error",
+            "before"
         ],
         "padded-blocks": "off",
         "quote-props": [
             "error",
             "consistent-as-needed"
         ],
-        "sort-imports": [
-            "error",
-            {
-                "allowSeparatedGroups": true,
-                "ignoreCase": true
-            }
-        ],
+        "sort-imports": "off",
         "space-in-parens": "off"
     }
 }
