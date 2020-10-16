@@ -4,6 +4,7 @@
     "main": "src/index.ts",
     "license": "MIT",
     "scripts": {
+        "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
         "start": "node -r ts-node/register/transpile-only -r tsconfig-paths/register ./src/index.ts",
         "test": "jest",
         "test:watch": "jest --watch",
@@ -12,7 +13,9 @@
         "test:e2e": "jest --config ./test/jest-e2e.json"
     },
     "dependencies": {
+        "date-fns": "^2.16.1",
         "dotenv": "^8.2.0",
+        "jsdom": "^16.4.0",
         "nodemailer": "^6.4.13",
         "ts-node": "^9.0.0",
         "typescript": "^4.0.3"
@@ -23,6 +26,7 @@
         "@babel/preset-typescript": "^7.10.4",
         "@types/dotenv": "^8.2.0",
         "@types/jest": "^26.0.14",
+        "@types/jsdom": "^16.2.4",
         "@types/node": "^14.11.8",
         "@types/nodemailer": "^6.4.0",
         "@typescript-eslint/eslint-plugin": "^4.4.0",
