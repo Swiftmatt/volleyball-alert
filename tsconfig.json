@@ -30,6 +30,7 @@
         },
 
         /* Project Options */
+        "lib": ["dom", "esnext"],
         "module": "commonjs",
         "target": "esnext",
 
