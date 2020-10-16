@@ -49,7 +49,10 @@ function createToledoSportAndSocialClubUrl(league: League): string {
     const { baseUrl } = venueInfoMap[venue];
 
     const teamName = name.split(' ').join('+');
-    const url = new URL(`${baseUrl}?ID=${id}&TeamName=${teamName}`);
+
+    const url = new URL(baseUrl);
+    url.searchParams.append('ID', id);
+    url.searchParams.append('TeamName', teamName);
 
     return url.toString();
 }
@@ -57,29 +60,16 @@ function createToledoSportAndSocialClubUrl(league: League): string {
 function getLeagueNameFromBody(body: HTMLElement): MatchInfo['league']['name'] {
     const selector = '#ctl00_ContentPlaceHolder1_ScheduleHolder > table:nth-child(1) > tbody:nth-child(1) > tr:nth-child(1) > td:nth-child(1) > h1';
 
-    let leagueRaw = null;
-    try {
-        leagueRaw = body.querySelector(selector)?.textContent?.trim();
-        if (isNil(leagueRaw)) {
-            // eslint-disable-next-line no-throw-literal
-            throw new Error();
-        }
-    } catch {
-        console.error(leagueRaw);
+    const leagueRaw = body.querySelector(selector)?.textContent?.trim();
+    if (isNil(leagueRaw)) {
         throw new Error('Unable to query leagueName from DOM Body.');
     }
 
     const leagueRegex = /.+:\s+(?<league>.+)\s+@.+/u;
     const leagueRegexMatches = leagueRegex.exec(leagueRaw);
 
-    let league = null;
-    try {
-        league = leagueRegexMatches?.groups?.court;
-        if (isNil(league)) {
-            // eslint-disable-next-line no-throw-literal
-            throw new Error();
-        }
-    } catch {
+    const league = leagueRegexMatches?.groups?.league;
+    if (isNil(league)) {
         throw new Error(`Unable to parse League from header text. (${leagueRaw})`);
     }
 
@@ -127,14 +117,8 @@ function getCourtFromCell(location: string): MatchInfo['court'] {
     const courtRegex = /SRC #(?<court>\d)/u;
     const courtRegexMatches = courtRegex.exec(location.trim());
 
-    let court = null;
-    try {
-        court = courtRegexMatches?.groups?.court;
-        if (isNil(court)) {
-            // eslint-disable-next-line no-throw-literal
-            throw new Error();
-        }
-    } catch {
+    const court = courtRegexMatches?.groups?.court;
+    if (isNil(court)) {
         throw new Error(`Unable to parse Court from location. (${location})`);
     }
 
@@ -145,20 +129,14 @@ function getTeamsFromCell(scheduledTeams: string): Match['teams'] {
     const teamsRegex = /\s+(?<awayTeam>.+)\s+(?<awayTeamStanding>\(\d+-\d\))\s+@\s+(?<homeTeam>.+)\s+(?<homeTeamStanding>\(\d+-\d\))/mu;
     const teamsRegexMatches = teamsRegex.exec(scheduledTeams);
 
-    let teams = null;
-    try {
-        teams = teamsRegexMatches?.groups;
-        if (
-            isNil(teams)
-            || isNil(teams.awayTeam)
-            || isNil(teams.awayTeamStanding)
-            || isNil(teams.homeTeam)
-            || isNil(teams.homeTeamStanding)
-        ) {
-            // eslint-disable-next-line no-throw-literal
-            throw new Error();
-        }
-    } catch {
+    const teams = teamsRegexMatches?.groups;
+    if (
+        isNil(teams)
+        || isNil(teams.awayTeam)
+        || isNil(teams.awayTeamStanding)
+        || isNil(teams.homeTeam)
+        || isNil(teams.homeTeamStanding)
+    ) {
         throw new Error(`Unable to parse scheduled teams nor standings. (${scheduledTeams})`);
     }
 
@@ -201,7 +179,7 @@ export async function parseToledoSportAndSocialClubLeague(league: League): Promi
         name: teamName,
     } = team;
 
-    const url = createToledoSportAndSocialClubUrl(league).toString();
+    const url = createToledoSportAndSocialClubUrl(league);
     const dom = await JSDOM.fromURL(url);
 
     const { body } = dom
