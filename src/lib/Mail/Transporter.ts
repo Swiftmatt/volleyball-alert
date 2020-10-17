@@ -1,15 +1,21 @@
 import * as Dotenv from 'dotenv';
-import * as Nodemailer from 'nodemailer';
-
-import * as Const from 'src/constants';
-
-import type { Transport, TransportOptions } from 'nodemailer';
+import * as NodeMailer from 'nodemailer';
 import type JSONTransport from 'nodemailer/lib/json-transport';
+import type Mail from 'nodemailer/lib/mailer';
 import type SendmailTransport from 'nodemailer/lib/sendmail-transport';
 import type SESTransport from 'nodemailer/lib/ses-transport';
 import type SMTPPool from 'nodemailer/lib/smtp-pool';
 import type SMTPTransport from 'nodemailer/lib/smtp-transport';
 import type StreamTransport from 'nodemailer/lib/stream-transport';
+
+import { ENV_FILE_PATH } from 'src/constants';
+import { carrierEmailSuffixMap } from 'src/lib/Mail/Carrier';
+import {
+    Contact,
+    isEmailContact,
+    isMobileContact,
+} from 'src/lib/Mail/Contact';
+import { isNil } from 'src/lib/Util';
 
 
 type TransportConfig =
@@ -27,13 +33,17 @@ type TransportConfig =
     | StreamTransport
     | StreamTransport.Options
     | Transport
-    | TransportOptions
+    | NodeMailer.TransportOptions
 ;
 
 
 Dotenv.config({
-    path: Const.ENV_FILE_PATH,
+    path: ENV_FILE_PATH,
 });
+
+if ( isNil(process.env.EMAIL) ) {
+    throw new Error('Environment variable EMAIL was undefined.');
+}
 
 
 export const DEFAULT_TRANSPORT_CONFIG: SMTPTransport.Options = {
@@ -46,15 +56,48 @@ export const DEFAULT_TRANSPORT_CONFIG: SMTPTransport.Options = {
     secure: true,
 } as const;
 
+export const FROM_MAIL_ADDRESS: Mail.Address = {
+    address: process.env.EMAIL,
+    name: 'Volleyball Alerts',
+} as const;
 
-export async function createTransporter(transportConfig: TransportConfig = DEFAULT_TRANSPORT_CONFIG): Promise<Nodemailer.Transporter> {
-    console.log('Initializing Transporter...');
-    const transporter = Nodemailer.createTransport(transportConfig);
-    console.log('Transporter setup complete!\n');
 
-    console.log('Verifying Transporter setup...');
+export async function createTransporter(transportConfig: TransportConfig = DEFAULT_TRANSPORT_CONFIG): Promise<NodeMailer.Transporter> {
+    const transporter = NodeMailer.createTransport(transportConfig);
     await transporter.verify();
-    console.log('Transporter setup was successful!\n');
 
     return transporter;
+}
+
+export function getMailAddressFromContact(contact: Contact): Mail.Address {
+    if (isMobileContact(contact)) {
+        const {
+            carrier,
+            name,
+            number,
+        } = contact;
+
+        const emailSuffix = carrierEmailSuffixMap[carrier];
+        const address = `${number}${emailSuffix}`;
+
+        return {
+            address,
+            name,
+        };
+    }
+
+    if (isEmailContact(contact)) {
+        const {
+            email,
+            name,
+        } = contact;
+
+        const address = email;
+        return {
+            address,
+            name,
+        };
+    }
+
+    throw new Error('Unable to get mail address for the provided contact. (Impossible!)');
 }
