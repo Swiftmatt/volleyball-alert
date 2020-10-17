@@ -5,15 +5,13 @@ export enum Venue {
 }
 
 
-export type VenueInfoMap = {
-    [v in Venue]: {
-        baseUrl: string;
-        name: string;
-    };
+export type VenueInfo = {
+    baseUrl: string;
+    name: string;
 };
 
 
-export const venueInfoMap: VenueInfoMap = {
+export const venueInfoMap: Record<Venue, VenueInfo> = {
     [Venue.ForestViewLanes]: {
         baseUrl: 'https://forestviewlanes.bracketpal.com/',
         name: 'Forest View Lanes',
