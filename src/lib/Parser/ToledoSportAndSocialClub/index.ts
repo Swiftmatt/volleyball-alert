@@ -1,63 +1,38 @@
-import * as DateFns from 'date-fns';
 import { JSDOM } from 'jsdom';
+import type { StatusCodeError } from 'request-promise/errors';
 import { URL } from 'url';
 
-import type { League } from 'src/lib/Parser/League';
+import type {
+    LeagueMatch,
+    Match,
+    MatchTeam,
+} from 'src/lib/Parser/Match';
+import type { Team } from 'src/lib/Parser/Team';
 import { venueInfoMap } from 'src/lib/Parser/Venue';
-import { isNil } from 'src/lib/Util';
+import {
+    isNil,
+    isTwoNumberArray,
+} from 'src/lib/Util';
 
 
-type MatchInfo = {
-    court: number;
-    dateTime: string;
-    league: {
-        id: string;
-        name: string;
-        url: string;
-    };
-    opponentTeam: {
-        name: string;
-        standing: string;
-    };
-    team: {
-        name: string;
-        standing: string;
-    };
-    venue: {
-        name: string;
-    };
-};
-
-type Match = Pick<MatchInfo,
-    'court'
-    | 'dateTime'
-    > & {
-        teams: Array<{
-            name: string;
-            standing: string;
-        }>;
-    };
-
-
-function createToledoSportAndSocialClubUrl(league: League): string {
+function createToledoSportAndSocialClubUrl(team: Team): string {
+    const {
+        league,
+        name,
+    } = team;
     const {
         id,
-        team,
         venue,
     } = league;
-    const { name } = team;
     const { baseUrl } = venueInfoMap[venue];
 
     const teamName = name.split(' ').join('+');
 
-    const url = new URL(baseUrl);
-    url.searchParams.append('ID', id);
-    url.searchParams.append('TeamName', teamName);
-
+    const url = new URL(`${baseUrl}?ID=${id}&TeamName=${teamName}`);
     return url.toString();
 }
 
-function getLeagueNameFromBody(body: HTMLElement): MatchInfo['league']['name'] {
+function getLeagueNameFromBody(body: HTMLElement): LeagueMatch['league']['name'] {
     const selector = '#ctl00_ContentPlaceHolder1_ScheduleHolder > table:nth-child(1) > tbody:nth-child(1) > tr:nth-child(1) > td:nth-child(1) > h1';
 
     const leagueRaw = body.querySelector(selector)?.textContent?.trim();
@@ -99,12 +74,12 @@ function getMatchesFromBody(body: HTMLElement): Match[] {
         ] = cells;
 
         const court = getCourtFromCell(location);
-        const dateTime = getTimeFromCell(dateTimeRaw);
+        const datetime = getTimeFromCell(dateTimeRaw);
         const teams = getTeamsFromCell(scheduledTeams);
 
         matches.push({
             court,
-            dateTime,
+            datetime,
             teams,
         });
         return matches;
@@ -113,7 +88,7 @@ function getMatchesFromBody(body: HTMLElement): Match[] {
     return matches;
 }
 
-function getCourtFromCell(location: string): MatchInfo['court'] {
+function getCourtFromCell(location: string): LeagueMatch['court'] {
     const courtRegex = /SRC #(?<court>\d)/u;
     const courtRegexMatches = courtRegex.exec(location.trim());
 
@@ -125,62 +100,87 @@ function getCourtFromCell(location: string): MatchInfo['court'] {
     return Number(court);
 }
 
-function getTeamsFromCell(scheduledTeams: string): Match['teams'] {
-    const teamsRegex = /\s+(?<awayTeam>.+)\s+(?<awayTeamStanding>\(\d+-\d\))\s+@\s+(?<homeTeam>.+)\s+(?<homeTeamStanding>\(\d+-\d\))/mu;
+function getTeamsFromCell(scheduledTeams: string): [MatchTeam, MatchTeam] {
+    const teamsRegex = /\s+(?<awayTeam>.+)\s+\((?<awayTeamRecordRaw>\d+-\d)\)\s+@\s+(?<homeTeam>.+)\s+\((?<homeTeamRecordRaw>\d+-\d)\)/mu;
     const teamsRegexMatches = teamsRegex.exec(scheduledTeams);
 
     const teams = teamsRegexMatches?.groups;
     if (
         isNil(teams)
         || isNil(teams.awayTeam)
-        || isNil(teams.awayTeamStanding)
+        || isNil(teams.awayTeamRecordRaw)
         || isNil(teams.homeTeam)
-        || isNil(teams.homeTeamStanding)
+        || isNil(teams.homeTeamRecordRaw)
     ) {
-        throw new Error(`Unable to parse scheduled teams nor standings. (${scheduledTeams})`);
+        throw new Error(`Unable to parse scheduled teams nor records. (${scheduledTeams})`);
     }
 
     const {
         awayTeam,
-        awayTeamStanding,
+        awayTeamRecordRaw,
         homeTeam,
-        homeTeamStanding,
+        homeTeamRecordRaw,
     } = teams;
+
+    const [
+        awayTeamRecord,
+        homeTeamRecord,
+    ] = [
+        awayTeamRecordRaw,
+        homeTeamRecordRaw,
+    ].map(record => record.split('-').map( score => Number(score) ) );
+
+    if (
+        !isTwoNumberArray(awayTeamRecord)
+        || !isTwoNumberArray(homeTeamRecord)
+    ) {
+        throw new Error(`Unable to parse team records correctly. ('${awayTeamRecordRaw}', '${homeTeamRecordRaw}')`);
+    }
 
     return [
         {
             name: awayTeam,
-            standing: awayTeamStanding,
+            record: awayTeamRecord,
         },
         {
             name: homeTeam,
-            standing: homeTeamStanding,
+            record: homeTeamRecord,
         },
     ];
 }
 
-function getTimeFromCell(dateTime: string): MatchInfo['dateTime'] {
-    return DateFns.format(
-        new Date(dateTime.trim()),
-        'M/d/yyyy, h:mm a',
-    );
+function getTimeFromCell(datetime: string): LeagueMatch['datetime'] {
+    return new Date(datetime.trim());
 }
 
 // eslint-disable-next-line max-lines-per-function,max-statements
-export async function parseToledoSportAndSocialClubLeague(league: League): Promise<MatchInfo[]> {
-    const today = new Date();
+export async function parseToledoSportAndSocialClubLeague(team: Team): Promise<LeagueMatch[]> {
+    const {
+        league,
+        members,
+        name: teamName,
+    } = team;
     const {
         id: leagueId,
-        team,
         venue,
     } = league;
 
-    const {
-        name: teamName,
-    } = team;
+    const url = createToledoSportAndSocialClubUrl(team);
+    const dom = await JSDOM.fromURL(url).catch((err: StatusCodeError) => {
+        const {
+            response,
+            statusCode,
+        } = err;
+        const statusMessage = response.statusMessage ?? '';
 
-    const url = createToledoSportAndSocialClubUrl(league);
-    const dom = await JSDOM.fromURL(url);
+        const errorCodeMessage = [
+            statusCode,
+            statusMessage,
+        ].join(': ');
+
+        console.error(errorCodeMessage);
+        throw new Error(`An error occurred while trying to fetch page content from URL. (${url})`);
+    });
 
     const { body } = dom
         .window
@@ -194,11 +194,12 @@ export async function parseToledoSportAndSocialClubLeague(league: League): Promi
     const leagueMatches = matches.map(match => {
         const {
             court,
-            dateTime,
+            datetime,
+            teams,
         } = match;
 
-        const team = match.teams.find(team => team.name === teamName);
-        const opponentTeam = match.teams.find(team => team.name !== teamName);
+        const team = teams.find(team => team.name === teamName);
+        const opponentTeam = teams.find(team => team.name !== teamName);
 
         if ( isNil(team) ) {
             throw new Error(`Unable to find matching team with the provided teamName. (${teamName})`);
@@ -210,24 +211,22 @@ export async function parseToledoSportAndSocialClubLeague(league: League): Promi
 
         return {
             court,
-            dateTime,
+            datetime,
             league: {
                 id: leagueId,
                 name: leagueName,
-                url,
+                venue: {
+                    name: venueName,
+                    url,
+                },
             },
             opponentTeam,
-            team,
-            venue: {
-                name: venueName,
+            team: {
+                ...team,
+                members,
             },
         };
     });
 
-    const filtered = leagueMatches.filter(leagueMatch => DateFns.isSameDay(
-        new Date(today),
-        new Date(leagueMatch.dateTime),
-    ));
-
-    return filtered;
+    return leagueMatches;
 }

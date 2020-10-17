@@ -1,18 +1,19 @@
-import type { League } from 'src/lib/Parser/League';
+import type { LeagueMatch } from 'src/lib/Parser/Match';
+import type { Team } from 'src/lib/Parser/Team';
 import { parseToledoSportAndSocialClubLeague } from 'src/lib/Parser/ToledoSportAndSocialClub';
 import { Venue } from 'src/lib/Parser/Venue';
 
 
-async function leagueParserSelector(league: League): Promise<unknown> {
-    switch (league.venue) {
+export async function leagueVenueParserSelector(team: Team): Promise<LeagueMatch[]> {
+    switch (team.league.venue) {
         // case Venue.ForestViewLanes:
         //     return parseForestViewLanesLeague(league);
         // case Venue.PremierAcademy:
         //     return parsePremierAcademyLeague(league);
         case Venue.ToledoSportAndSocialClub:
-            return parseToledoSportAndSocialClubLeague(league);
+            return parseToledoSportAndSocialClubLeague(team);
         default:
-            throw new Error(`Unknown league venue provided. (${league.venue})`);
+            throw new Error(`Unknown league venue provided. (${team.league.venue})`);
     }
 }
 
