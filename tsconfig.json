@@ -25,14 +25,17 @@
         "baseUrl": ".",
         "esModuleInterop": true,
         "paths": {
-            ".private/*": [".private/*"],
+            "config/*": ["config/*"],
             "src/*": ["src/*"]
         },
 
         /* Project Options */
-        "lib": ["dom", "esnext"],
+        "lib": [
+            "dom",
+            "esnext"
+        ],
         "module": "commonjs",
-        "target": "esnext",
+        "target": "es2019",
 
         /* Source Maps */
 
