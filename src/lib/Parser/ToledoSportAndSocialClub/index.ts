@@ -1,3 +1,4 @@
+import * as DateFns from 'date-fns';
 import { JSDOM } from 'jsdom';
 import type { StatusCodeError } from 'request-promise/errors';
 import { URL } from 'url';
@@ -68,13 +69,13 @@ function getMatchesFromBody(body: HTMLElement): Match[] {
         });
 
         const [
-            dateTimeRaw,
+            datetimeRaw,
             scheduledTeams,
             location,
         ] = cells;
 
         const court = getCourtFromCell(location);
-        const datetime = getTimeFromCell(dateTimeRaw);
+        const datetime = getTimeFromCell(datetimeRaw);
         const teams = getTeamsFromCell(scheduledTeams);
 
         matches.push({
@@ -149,8 +150,14 @@ function getTeamsFromCell(scheduledTeams: string): [MatchTeam, MatchTeam] {
     ];
 }
 
-function getTimeFromCell(datetime: string): LeagueMatch['datetime'] {
-    return new Date(datetime.trim());
+function getTimeFromCell(datetimeRaw: string): LeagueMatch['datetime'] {
+    const datetimeWithoutSpacing = datetimeRaw.replace(/\s+/gu, '');
+    const parsedDatetime = DateFns.parse(
+        datetimeWithoutSpacing,
+        'M/d/yyyy,h:mma',
+        new Date(),
+    );
+    return parsedDatetime;
 }
 
 // eslint-disable-next-line max-lines-per-function,max-statements
