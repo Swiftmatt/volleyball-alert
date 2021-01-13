@@ -4,7 +4,7 @@ import { parseToledoSportAndSocialClubLeague } from 'src/lib/Parser/ToledoSportA
 import { Venue } from 'src/models/Venue';
 
 
-export async function leagueVenueParserSelector(team: Team): Promise<LeagueMatch[]> {
+export async function getLeagueMatchesForTeam(team: Team): Promise<LeagueMatch[]> {
     switch (team.league.venue) {
         // case Venue.ForestViewLanes:
         //     return parseForestViewLanesLeague(league);
