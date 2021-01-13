@@ -7,9 +7,9 @@ import type {
     LeagueMatch,
     Match,
     MatchTeam,
-} from 'src/lib/Parser/Match';
-import type { Team } from 'src/lib/Parser/Team';
-import { venueInfoMap } from 'src/lib/Parser/Venue';
+} from 'src/models/Match';
+import type { Team } from 'src/models/Team';
+import { venueInfoMap } from 'src/models/Venue';
 import {
     isNil,
     isTwoNumberArray,

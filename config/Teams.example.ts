@@ -1,6 +1,6 @@
 import { Day } from 'src/lib/Date';
-import type { Team } from 'src/lib/Parser/Team';
-import { Venue } from 'src/lib/Parser/Venue';
+import type { Team } from 'src/models/Team';
+import { Venue } from 'src/models/Venue';
 import {
     People,
     peopleContactMap,

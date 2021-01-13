@@ -1,7 +1,7 @@
-import type { LeagueMatch } from 'src/lib/Parser/Match';
-import type { Team } from 'src/lib/Parser/Team';
+import type { LeagueMatch } from 'src/models/Match';
+import type { Team } from 'src/models/Team';
 import { parseToledoSportAndSocialClubLeague } from 'src/lib/Parser/ToledoSportAndSocialClub';
-import { Venue } from 'src/lib/Parser/Venue';
+import { Venue } from 'src/models/Venue';
 
 
 export async function leagueVenueParserSelector(team: Team): Promise<LeagueMatch[]> {
