@@ -1,4 +1,4 @@
-import type { Contact } from 'src/lib/Mail/Contact';
+import type { Contact } from 'src/models/Contact';
 import type { Day } from 'src/lib/Date';
 import type { Venue } from 'src/models/Venue';
 

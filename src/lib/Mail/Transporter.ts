@@ -14,7 +14,7 @@ import {
     Contact,
     isEmailContact,
     isMobileContact,
-} from 'src/lib/Mail/Contact';
+} from 'src/models/Contact';
 import { isNil } from 'src/lib/Util';
 
 

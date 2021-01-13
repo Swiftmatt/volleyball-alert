@@ -2,7 +2,7 @@ import * as DateFns from 'date-fns';
 
 import type { StrictOmit, Merge } from 'ts-essentials';
 
-import type { Contact } from 'src/lib/Mail/Contact';
+import type { Contact } from 'src/models/Contact';
 
 
 export type MatchTeam = {
