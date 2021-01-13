@@ -1,5 +1,4 @@
-import { Carrier } from 'src/lib/Mail/Carrier';
-import type { Contact } from 'src/models/Contact';
+import { Carrier, Contact } from 'src/models/Contact';
 
 
 export enum People {

@@ -9,8 +9,8 @@ import type SMTPTransport from 'nodemailer/lib/smtp-transport';
 import type StreamTransport from 'nodemailer/lib/stream-transport';
 
 import { ENV_FILE_PATH } from 'src/constants';
-import { carrierEmailSuffixMap } from 'src/lib/Mail/Carrier';
 import {
+    carrierEmailSuffixMap,
     Contact,
     isEmailContact,
     isMobileContact,

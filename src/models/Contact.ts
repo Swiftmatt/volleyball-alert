@@ -1,5 +1,8 @@
-import type { Carrier } from 'src/lib/Mail/Carrier';
-
+export enum Carrier {
+    Att = 'Att',
+    Sprint = 'Sprint',
+    Verizon = 'Verizon',
+}
 
 type EmailContact = {
     email: string;
@@ -14,6 +17,12 @@ type MobileContact = {
 
 export type Contact = MobileContact | EmailContact;
 
+
+export const carrierEmailSuffixMap = {
+    [Carrier.Att]: '@mms.att.net',
+    [Carrier.Sprint]: '@pm.sprint.com',
+    [Carrier.Verizon]: '@vzwpix.com',
+};
 
 export function isEmailContact(contact: Contact): contact is EmailContact {
     return 'email' in contact;
