@@ -4,14 +4,14 @@ import * as Handlebars from 'handlebars';
 import * as Path from 'path';
 
 import { SRC_PATH } from 'src/constants';
-import type { LeagueMatch } from 'src/models/Match';
+import type { Match } from 'src/models/Match';
 
 
 const TEMPLATES_PATH = Path.resolve(SRC_PATH, './templates');
 const DEFAULT_TEMPLATE_FILE_NAME = 'message.hbs';
 
 
-export async function createLeagueMatchMessage(leagueMatch: LeagueMatch): Promise<string> {
+export async function createMessageFromMatch(match: Match): Promise<string> {
     const path = Path.resolve(TEMPLATES_PATH, DEFAULT_TEMPLATE_FILE_NAME);
     const templateBuffer = await Fs.readFile(path);
     const templateFile = templateBuffer.toString();
@@ -22,7 +22,7 @@ export async function createLeagueMatchMessage(leagueMatch: LeagueMatch): Promis
         league,
         opponentTeam,
         team,
-    } = leagueMatch;
+    } = match;
 
     const date = DateFns.format(
         datetime,

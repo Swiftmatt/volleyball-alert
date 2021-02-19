@@ -4,6 +4,7 @@ export enum Carrier {
     Verizon = 'Verizon',
 }
 
+
 type EmailContact = {
     email: string;
     name: string;
@@ -23,6 +24,7 @@ export const carrierEmailSuffixMap = {
     [Carrier.Sprint]: '@pm.sprint.com',
     [Carrier.Verizon]: '@vzwpix.com',
 };
+
 
 export function isEmailContact(contact: Contact): contact is EmailContact {
     return 'email' in contact;

@@ -3,37 +3,28 @@ import { JSDOM } from 'jsdom';
 import type { StatusCodeError } from 'request-promise/errors';
 import { URL } from 'url';
 
-import type {
-    LeagueMatch,
-    Match,
-    MatchTeam,
-} from 'src/models/Match';
-import type { Team } from 'src/models/Team';
-import { venueInfoMap } from 'src/models/Venue';
+import type { League } from 'src/models/League';
+import type { Match, MatchLite } from 'src/models/Match';
+import type { TeamConfig, TeamLite } from 'src/models/Team';
+import { getVenueInfoFromVenueName } from 'src/models/Venue';
 import {
     isNil,
     isTwoNumberArray,
 } from 'src/lib/Util';
 
 
-function createToledoSportAndSocialClubUrl(team: Team): string {
-    const {
-        league,
-        name,
-    } = team;
-    const {
-        id,
-        venue,
-    } = league;
-    const { baseUrl } = venueInfoMap[venue];
+function createToledoSportAndSocialClubUrl(teamConfig: TeamConfig): string {
+    const venue = getVenueInfoFromVenueName(teamConfig.league.venue.name);
 
-    const teamName = name.split(' ').join('+');
+    const { baseUrl } = venue;
+    const { id } = teamConfig.league;
+    const teamName = teamConfig.name.split(' ').join('+');
 
     const url = new URL(`${baseUrl}?ID=${id}&TeamName=${teamName}`);
     return url.toString();
 }
 
-function getLeagueNameFromBody(body: HTMLElement): LeagueMatch['league']['name'] {
+function getLeagueNameFromBody(body: HTMLElement): League['name'] {
     const selector = '#ctl00_ContentPlaceHolder1_ScheduleHolder > table:nth-child(1) > tbody:nth-child(1) > tr:nth-child(1) > td:nth-child(1) > h1';
 
     const leagueRaw = body.querySelector(selector)?.textContent?.trim();
@@ -52,7 +43,7 @@ function getLeagueNameFromBody(body: HTMLElement): LeagueMatch['league']['name']
     return league;
 }
 
-function getMatchesFromBody(body: HTMLElement): Match[] {
+function getMatchesFromBody(body: HTMLElement): MatchLite[] {
     const selector = '#ctl00_ContentPlaceHolder1_gvSchedule > tbody > tr';
     const tableRowElements = body.querySelectorAll(selector);
     const [
@@ -60,7 +51,7 @@ function getMatchesFromBody(body: HTMLElement): Match[] {
         ...rows
     ] = Array.from(tableRowElements);
 
-    const matches = rows.reduce<Match[]>((matches, currentRow) => {
+    const matches = rows.reduce<MatchLite[]>((matches, currentRow) => {
         const cells = Array.from(currentRow.children).map<string>(cell => {
             if (isNil(cell.textContent)) {
                 throw new Error(`The current row's cell did not have textContent. (${cell.innerHTML})`);
@@ -89,7 +80,7 @@ function getMatchesFromBody(body: HTMLElement): Match[] {
     return matches;
 }
 
-function getCourtFromCell(location: string): LeagueMatch['court'] {
+function getCourtFromCell(location: string): MatchLite['court'] {
     const courtRegex = /SRC #(?<court>\d)/u;
     const courtRegexMatches = courtRegex.exec(location.trim());
 
@@ -101,7 +92,7 @@ function getCourtFromCell(location: string): LeagueMatch['court'] {
     return Number(court);
 }
 
-function getTeamsFromCell(scheduledTeams: string): [MatchTeam, MatchTeam] {
+function getTeamsFromCell(scheduledTeams: string): [TeamLite, TeamLite] {
     const teamsRegex = /\s+(?<awayTeam>.+)\s+\((?<awayTeamRecordRaw>\d+-\d)\)\s+@\s+(?<homeTeam>.+)\s+\((?<homeTeamRecordRaw>\d+-\d)\)/mu;
     const teamsRegexMatches = teamsRegex.exec(scheduledTeams);
 
@@ -129,7 +120,8 @@ function getTeamsFromCell(scheduledTeams: string): [MatchTeam, MatchTeam] {
     ] = [
         awayTeamRecordRaw,
         homeTeamRecordRaw,
-    ].map(record => record.split('-').map( score => Number(score) ) );
+    ].map(record => record.split('-')
+        .map( score => Number(score) ) );
 
     if (
         !isTwoNumberArray(awayTeamRecord)
@@ -150,7 +142,7 @@ function getTeamsFromCell(scheduledTeams: string): [MatchTeam, MatchTeam] {
     ];
 }
 
-function getTimeFromCell(datetimeRaw: string): LeagueMatch['datetime'] {
+function getTimeFromCell(datetimeRaw: string): MatchLite['datetime'] {
     const datetimeWithoutSpacing = datetimeRaw.replace(/\s+/gu, '');
     const parsedDatetime = DateFns.parse(
         datetimeWithoutSpacing,
@@ -161,18 +153,17 @@ function getTimeFromCell(datetimeRaw: string): LeagueMatch['datetime'] {
 }
 
 // eslint-disable-next-line max-lines-per-function,max-statements
-export async function parseToledoSportAndSocialClubLeague(team: Team): Promise<LeagueMatch[]> {
+export async function parseToledoSportAndSocialClubLeague(teamConfig: TeamConfig): Promise<Match[]> {
     const {
         league,
         members,
         name: teamName,
-    } = team;
+    } = teamConfig;
     const {
         id: leagueId,
-        venue,
     } = league;
 
-    const url = createToledoSportAndSocialClubUrl(team);
+    const url = createToledoSportAndSocialClubUrl(teamConfig);
     const dom = await JSDOM.fromURL(url).catch((err: StatusCodeError) => {
         const {
             response,
@@ -194,11 +185,11 @@ export async function parseToledoSportAndSocialClubLeague(team: Team): Promise<L
         .document;
 
     const leagueName = getLeagueNameFromBody(body);
-    const matches = getMatchesFromBody(body);
+    const matchLites = getMatchesFromBody(body);
 
-    const venueName = venueInfoMap[venue].name;
+    const venue = getVenueInfoFromVenueName(league.venue.name);
 
-    const leagueMatches = matches.map(match => {
+    const matches: Match[] = matchLites.map(match => {
         const {
             court,
             datetime,
@@ -222,18 +213,17 @@ export async function parseToledoSportAndSocialClubLeague(team: Team): Promise<L
             league: {
                 id: leagueId,
                 name: leagueName,
-                venue: {
-                    name: venueName,
-                    url,
-                },
+                url,
+                venue,
             },
             opponentTeam,
             team: {
                 ...team,
                 members,
+                url,
             },
         };
     });
 
-    return leagueMatches;
+    return matches;
 }

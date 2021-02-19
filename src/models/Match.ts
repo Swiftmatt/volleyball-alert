@@ -1,33 +1,20 @@
-import type { StrictOmit, Merge } from 'ts-essentials';
+import type { Merge, StrictOmit } from 'ts-essentials';
 
-import type { Contact } from 'src/models/Contact';
+import type { League } from 'src/models/League';
+import type { Team, TeamLite } from 'src/models/Team';
 
-
-export type MatchTeam = {
-    name: string;
-    record: [number, number];
-};
 
 export type Match = {
     court: number;
     datetime: Date;
-    teams: [MatchTeam, MatchTeam];
+    league: League;
+    opponentTeam: TeamLite;
+    team: Team;
 };
 
-export type LeagueMatch = Merge<
-    StrictOmit<Match, 'teams'>,
+export type MatchLite = Merge<
+    StrictOmit<Match, 'league' | 'opponentTeam' | 'team'>,
     {
-        league: {
-            id: string;
-            name: string;
-            venue: {
-                name: string;
-                url: string;
-            };
-        };
-        opponentTeam: MatchTeam;
-        team: Merge<MatchTeam, {
-            members: Contact[];
-        }>;
+        teams: [TeamLite, TeamLite];
     }
 >;

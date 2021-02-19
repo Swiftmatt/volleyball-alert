@@ -1,27 +1,49 @@
-export enum Venue {
-    ForestViewLanes = 'ForestViewLanes',
-    PremierAcademy = 'PremierAcademy',
-    ToledoSportAndSocialClub = 'ToledoSportAndSocialClub',
+import type { StrictOmit } from 'ts-essentials';
+
+import { isNil } from 'src/lib/Util';
+
+
+export enum VenueName {
+    ForestViewLanes = 'Forest View Lanes',
+    PremierAcademy = 'Premier Academy',
+    ToledoSportAndSocialClub = 'Toledo Sport And Social Club',
 }
 
 
-export type VenueInfo = {
+export type Venue = {
     baseUrl: string;
-    name: string;
+    name: VenueName;
 };
 
+export type VenueLite = StrictOmit<Venue, 'baseUrl'>;
 
-export const venueInfoMap: Record<Venue, VenueInfo> = {
-    [Venue.ForestViewLanes]: {
+
+export const venueMap: Record<VenueName, Venue> = {
+    [VenueName.ForestViewLanes]: {
         baseUrl: 'https://forestviewlanes.bracketpal.com/',
-        name: 'Forest View Lanes',
+        name: VenueName.ForestViewLanes,
     },
-    [Venue.PremierAcademy]: {
+    [VenueName.PremierAcademy]: {
         baseUrl: 'https://www.premiervolleyball.com/',
-        name: 'Premier Academy',
+        name: VenueName.PremierAcademy,
     },
-    [Venue.ToledoSportAndSocialClub]: {
+    [VenueName.ToledoSportAndSocialClub]: {
         baseUrl: 'http://www.toledosportandsocialclub.com/LeagueSchedule.aspx',
-        name: 'Skyway Recreation Center',
+        name: VenueName.ToledoSportAndSocialClub,
     },
 } as const;
+
+
+export function getVenueInfoFromVenueName(venueName: Venue['name']): Venue {
+    const isVenueNameInVenueMap = venueName in venueMap;
+    if (!isVenueNameInVenueMap) {
+        throw new Error(`The provided venue name was not mapped. (${venueName})`);
+    }
+
+    const venue = venueMap[venueName];
+    if ( isNil(venue) ) {
+        throw new Error(`The mapped venue has missing info. (${venueName})`);
+    }
+
+    return venue;
+}
