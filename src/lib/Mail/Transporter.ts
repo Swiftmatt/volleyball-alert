@@ -69,6 +69,17 @@ export async function createTransporter(transportConfig: TransportConfig = DEFAU
     return transporter;
 }
 
+export function createMailOptions(mailOptions: Mail.Options): Mail.Options {
+    const defaultMailOptions: Mail.Options = {
+        from: FROM_MAIL_ADDRESS,
+        textEncoding: 'base64',
+    };
+    return {
+        ...defaultMailOptions,
+        ...mailOptions,
+    };
+}
+
 export function getMailAddressFromContact(contact: Contact): Mail.Address {
     if (isMobileContact(contact)) {
         const {
