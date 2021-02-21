@@ -1,4 +1,4 @@
-import type { Merge, StrictOmit } from 'ts-essentials';
+import type { Merge } from 'ts-essentials';
 
 import type { Day } from 'src/lib/Date';
 import type { Venue, VenueLite } from 'src/models/Venue';
@@ -11,10 +11,9 @@ export type League = {
 };
 
 export type LeagueConfig = Merge<
-    StrictOmit<League, 'name' | 'venue'>,
+    Pick<League, 'id'>,
     {
         dayOfTheWeek: Day;
         venue: VenueLite;
     }
 >;
-

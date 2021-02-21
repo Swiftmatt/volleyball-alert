@@ -1,4 +1,4 @@
-import type { Merge, StrictOmit } from 'ts-essentials';
+import type { Merge } from 'ts-essentials';
 
 import type { League } from 'src/models/League';
 import type { Team, TeamLite } from 'src/models/Team';
@@ -13,7 +13,7 @@ export type Match = {
 };
 
 export type MatchLite = Merge<
-    StrictOmit<Match, 'league' | 'opponentTeam' | 'team'>,
+    Pick<Match, 'court' | 'datetime'>,
     {
         teams: [TeamLite, TeamLite];
     }

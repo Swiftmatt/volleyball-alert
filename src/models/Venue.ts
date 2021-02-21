@@ -1,5 +1,3 @@
-import type { StrictOmit } from 'ts-essentials';
-
 import { isNil } from 'src/lib/Util';
 
 
@@ -15,7 +13,7 @@ export type Venue = {
     name: VenueName;
 };
 
-export type VenueLite = StrictOmit<Venue, 'baseUrl'>;
+export type VenueLite = Pick<Venue, 'name'>;
 
 
 export const venueMap: Record<VenueName, Venue> = {

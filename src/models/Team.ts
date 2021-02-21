@@ -1,4 +1,4 @@
-import type { Merge, StrictOmit } from 'ts-essentials';
+import type { Merge } from 'ts-essentials';
 
 import type { Contact } from 'src/models/Contact';
 import type { LeagueConfig } from 'src/models/League';
@@ -11,10 +11,10 @@ export type Team = {
     url: string;
 };
 
-export type TeamLite = StrictOmit<Team, 'members' | 'url'>;
+export type TeamLite = Pick<Team, 'name' | 'record'>;
 
 export type TeamConfig = Merge<
-    StrictOmit<Team, 'record' | 'url'>,
+    Pick<Team, 'members' | 'name'>,
     {
         league: LeagueConfig;
     }
