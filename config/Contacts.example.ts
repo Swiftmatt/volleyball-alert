@@ -9,11 +9,11 @@ export enum People {
 export const peopleContactMap: Record<People, Contact> = {
     [People.VolleyballPlayer_EmailExample]: {
         email: 'volleyball_player@mailinator.com',
-        name: 'Volleyball Player',
+        name: People.VolleyballPlayer_EmailExample,
     },
     [People.VolleyballPlayer_PhoneExample]: {
         carrier: Carrier.Verizon,
-        name: 'Volleyball Player',
+        name: People.VolleyballPlayer_PhoneExample,
         number: '5555555555',
     },
 };

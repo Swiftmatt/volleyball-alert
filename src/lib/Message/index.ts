@@ -35,7 +35,9 @@ export async function createMessageFromMatch(match: Match): Promise<string> {
     const teamRecord = team.record.join('-');
     const opponentTeamRecord = opponentTeam.record.join('-');
 
-    const template = Handlebars.compile(templateFile);
+    const template = Handlebars.compile(templateFile, {
+        noEscape: true,
+    });
     const message = template({
         court,
         date,
