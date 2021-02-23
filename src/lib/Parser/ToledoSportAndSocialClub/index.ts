@@ -4,8 +4,8 @@ import type { StatusCodeError } from 'request-promise/errors';
 import { URL } from 'url';
 
 import type { League } from 'src/models/League';
-import type { Match, MatchLite } from 'src/models/Match';
-import type { TeamConfig, TeamLite } from 'src/models/Team';
+import type { Match, MatchParsed } from 'src/models/Match';
+import type { TeamConfig, TeamParsed } from 'src/models/Team';
 import { getVenueInfoFromVenueName } from 'src/models/Venue';
 import {
     isNil,
@@ -43,7 +43,7 @@ function getLeagueNameFromBody(body: HTMLElement): League['name'] {
     return league;
 }
 
-function getMatchesFromBody(body: HTMLElement): MatchLite[] {
+function getMatchesFromBody(body: HTMLElement): MatchParsed[] {
     const selector = '#ctl00_ContentPlaceHolder1_gvSchedule > tbody > tr';
     const tableRowElements = body.querySelectorAll(selector);
     const [
@@ -51,7 +51,7 @@ function getMatchesFromBody(body: HTMLElement): MatchLite[] {
         ...rows
     ] = Array.from(tableRowElements);
 
-    const matches = rows.reduce<MatchLite[]>((matches, currentRow) => {
+    const matches = rows.reduce<MatchParsed[]>((matches, currentRow) => {
         const cells = Array.from(currentRow.children).map<string>(cell => {
             if (isNil(cell.textContent)) {
                 throw new Error(`The current row's cell did not have textContent. (${cell.innerHTML})`);
@@ -80,7 +80,7 @@ function getMatchesFromBody(body: HTMLElement): MatchLite[] {
     return matches;
 }
 
-function getCourtFromCell(location: string): MatchLite['court'] {
+function getCourtFromCell(location: string): MatchParsed['court'] {
     const courtRegex = /SRC #(?<court>\d)/u;
     const courtRegexMatches = courtRegex.exec(location.trim());
 
@@ -92,7 +92,7 @@ function getCourtFromCell(location: string): MatchLite['court'] {
     return Number(court);
 }
 
-function getTeamsFromCell(scheduledTeams: string): [TeamLite, TeamLite] {
+function getTeamsFromCell(scheduledTeams: string): [TeamParsed, TeamParsed] {
     const teamsRegex = /\s+(?<awayTeam>.+)\s+\((?<awayTeamRecordRaw>\d+-\d)\)\s+@\s+(?<homeTeam>.+)\s+\((?<homeTeamRecordRaw>\d+-\d)\)/mu;
     const teamsRegexMatches = teamsRegex.exec(scheduledTeams);
 
@@ -142,7 +142,7 @@ function getTeamsFromCell(scheduledTeams: string): [TeamLite, TeamLite] {
     ];
 }
 
-function getTimeFromCell(datetimeRaw: string): MatchLite['datetime'] {
+function getTimeFromCell(datetimeRaw: string): MatchParsed['datetime'] {
     const datetimeWithoutSpacing = datetimeRaw.replace(/\s+/gu, '');
     const parsedDatetime = DateFns.parse(
         datetimeWithoutSpacing,
@@ -185,16 +185,16 @@ export async function parseToledoSportAndSocialClubLeague(teamConfig: TeamConfig
         .document;
 
     const leagueName = getLeagueNameFromBody(body);
-    const matchLites = getMatchesFromBody(body);
+    const matchesParsed = getMatchesFromBody(body);
 
     const venue = getVenueInfoFromVenueName(league.venue.name);
 
-    const matches: Match[] = matchLites.map(match => {
+    const matches = matchesParsed.map<Match>(matchParsed => {
         const {
             court,
             datetime,
             teams,
-        } = match;
+        } = matchParsed;
 
         const team = teams.find(team => team.name === teamName);
         const opponentTeam = teams.find(team => team.name !== teamName);
@@ -207,13 +207,12 @@ export async function parseToledoSportAndSocialClubLeague(teamConfig: TeamConfig
             throw new Error(`Unable to find opposing team with the provided teamName. (${teamName})`);
         }
 
-        return {
+        const match: Match = {
             court,
             datetime,
             league: {
                 id: leagueId,
                 name: leagueName,
-                url,
                 venue,
             },
             opponentTeam,
@@ -223,6 +222,8 @@ export async function parseToledoSportAndSocialClubLeague(teamConfig: TeamConfig
                 url,
             },
         };
+
+        return match;
     });
 
     return matches;

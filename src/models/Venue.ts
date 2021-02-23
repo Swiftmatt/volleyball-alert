@@ -13,7 +13,7 @@ export type Venue = {
     name: VenueName;
 };
 
-export type VenueLite = Pick<Venue, 'name'>;
+export type VenueConfig = Pick<Venue, 'name'>;
 
 
 export const venueMap: Record<VenueName, Venue> = {

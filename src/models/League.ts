@@ -1,7 +1,7 @@
 import type { Merge } from 'ts-essentials';
 
 import type { Day } from 'src/lib/Date';
-import type { Venue, VenueLite } from 'src/models/Venue';
+import type { Venue, VenueConfig } from 'src/models/Venue';
 
 
 export type League = {
@@ -14,6 +14,6 @@ export type LeagueConfig = Merge<
     Pick<League, 'id'>,
     {
         dayOfTheWeek: Day;
-        venue: VenueLite;
+        venue: VenueConfig;
     }
 >;

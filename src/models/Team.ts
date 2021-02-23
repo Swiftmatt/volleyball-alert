@@ -11,7 +11,7 @@ export type Team = {
     url: string;
 };
 
-export type TeamLite = Pick<Team, 'name' | 'record'>;
+export type TeamParsed = Pick<Team, 'name' | 'record'>;
 
 export type TeamConfig = Merge<
     Pick<Team, 'members' | 'name'>,
