@@ -9,6 +9,9 @@ import {
 
 export const teams: TeamConfig[] = [
     {
+        additionalContacts: [
+            peopleContactMap[People.VolleyballPlayer_EmailExample],
+        ],
         league: {
             dayOfTheWeek: Day.Wednesday,
             id: '100',
@@ -17,7 +20,6 @@ export const teams: TeamConfig[] = [
             },
         },
         members: [
-            peopleContactMap[People.VolleyballPlayer_EmailExample],
             peopleContactMap[People.VolleyballPlayer_PhoneExample],
         ],
         name: '6 Pack',
