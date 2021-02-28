@@ -154,15 +154,6 @@ function getTimeFromCell(datetimeRaw: string): MatchParsed['datetime'] {
 
 // eslint-disable-next-line max-lines-per-function,max-statements
 export async function parseToledoSportAndSocialClubLeague(teamConfig: TeamConfig): Promise<Match[]> {
-    const {
-        league,
-        members,
-        name: teamName,
-    } = teamConfig;
-    const {
-        id: leagueId,
-    } = league;
-
     const url = createToledoSportAndSocialClubUrl(teamConfig);
     const dom = await JSDOM.fromURL(url).catch((err: StatusCodeError) => {
         const {
@@ -187,7 +178,7 @@ export async function parseToledoSportAndSocialClubLeague(teamConfig: TeamConfig
     const leagueName = getLeagueNameFromBody(body);
     const matchesParsed = getMatchesFromBody(body);
 
-    const venue = getVenueInfoFromVenueName(league.venue.name);
+    const venue = getVenueInfoFromVenueName(teamConfig.league.venue.name);
 
     const matches = matchesParsed.map<Match>(matchParsed => {
         const {
@@ -196,29 +187,29 @@ export async function parseToledoSportAndSocialClubLeague(teamConfig: TeamConfig
             teams,
         } = matchParsed;
 
-        const team = teams.find(team => team.name === teamName);
-        const opponentTeam = teams.find(team => team.name !== teamName);
+        const team = teams.find(team => team.name === teamConfig.name);
+        const opponentTeam = teams.find(team => team.name !== teamConfig.name);
 
         if ( isNil(team) ) {
-            throw new Error(`Unable to find matching team with the provided teamName. (${teamName})`);
+            throw new Error(`Unable to find matching team with the provided teamName. (${teamConfig.name})`);
         }
 
         if ( isNil(opponentTeam) ) {
-            throw new Error(`Unable to find opposing team with the provided teamName. (${teamName})`);
+            throw new Error(`Unable to find opposing team with the provided teamName. (${teamConfig.name})`);
         }
 
         const match: Match = {
             court,
             datetime,
             league: {
-                id: leagueId,
+                id: teamConfig.league.id,
                 name: leagueName,
                 venue,
             },
             opponentTeam,
             team: {
+                ...teamConfig,
                 ...team,
-                members,
                 url,
             },
         };
