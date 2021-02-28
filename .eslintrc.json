@@ -31,6 +31,7 @@
             "warn",
             "type"
         ],
+        "@typescript-eslint/consistent-type-imports": "off",
         "@typescript-eslint/explicit-function-return-type": [
             "error",
             {
@@ -65,8 +66,19 @@
             {
                 "selector": "variable",
                 "types": ["boolean"],
-                "format": ["strictCamelCase"],
-                "prefix": ["can", "did", "has", "is", "should", "will"]
+                "format": [
+                    "StrictPascalCase",
+                    "UPPER_CASE"
+                ],
+                "leadingUnderscore": "allow",
+                "prefix": [
+                    "can",      "CAN",
+                    "did",      "DID",
+                    "has",      "HAS",
+                    "is",       "IS",
+                    "should",   "SHOULD",
+                    "will",     "WILL"
+                ]
             },
             {
                 "selector": "variableLike",
@@ -75,6 +87,15 @@
                     "StrictPascalCase",
                     "UPPER_CASE"
                 ]
+            }
+        ],
+        "@typescript-eslint/no-magic-numbers": [
+            "error",
+            {
+                "enforceConst": true,
+                "ignoreEnums": false,
+                "ignoreNumericLiteralTypes": true,
+                "ignoreReadonlyClassProperties": true
             }
         ],
         "@typescript-eslint/no-shadow": "off",
@@ -102,6 +123,13 @@
                 "anonymous": "always",
                 "named": "never",
                 "asyncArrow": "always"
+            }
+        ],
+        "array-bracket-newline": [
+            "error",
+            {
+                "minItems": 1,
+                "multiline": true
             }
         ],
         "arrow-parens": [
@@ -135,6 +163,7 @@
         "no-console": "off",
         "no-inline-comments": "off",
         "no-undefined": "off",
+        "no-warning-comments": "warn",
         "object-curly-spacing": "off",
         "one-var": [
             "error",

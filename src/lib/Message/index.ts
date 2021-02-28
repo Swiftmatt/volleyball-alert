@@ -11,6 +11,7 @@ const TEMPLATES_PATH = Path.resolve(SRC_PATH, './templates');
 const DEFAULT_TEMPLATE_FILE_NAME = 'message.hbs';
 
 
+// eslint-disable-next-line max-statements
 export async function createMessageFromMatch(match: Match): Promise<string> {
     const path = Path.resolve(TEMPLATES_PATH, DEFAULT_TEMPLATE_FILE_NAME);
     const templateBuffer = await Fs.readFile(path);
