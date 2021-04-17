@@ -19,6 +19,15 @@ const ME: People | null = null;
 const SHOULD_ONLY_SEND_TO_ME = true;
 
 
+(async () => {
+    await main();
+})().catch(err => {
+    console.error(err);
+    process.exit();
+});
+
+
+// eslint-disable-next-line max-statements
 async function main(): Promise<void> {
     const transporter = await createTransporter();
 
@@ -64,6 +73,7 @@ async function main(): Promise<void> {
     }
 }
 
+// eslint-disable-next-line max-statements
 async function findScheduleConflicts(): Promise<void> {
     type DatetimeMemberGameMap = {
         [datetime: string]: {
@@ -114,11 +124,3 @@ async function findScheduleConflicts(): Promise<void> {
 
     console.log(gameConflicts);
 }
-
-
-(async () => {
-    await main();
-})().catch(err => {
-    console.error(err);
-    process.exit();
-});

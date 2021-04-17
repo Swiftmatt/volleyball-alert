@@ -74,6 +74,7 @@
                 "prefix": [
                     "can",      "CAN",
                     "did",      "DID",
+                    "does",     "DOES",
                     "has",      "HAS",
                     "is",       "IS",
                     "should",   "SHOULD",
@@ -92,8 +93,10 @@
         "@typescript-eslint/no-magic-numbers": [
             "error",
             {
+                "detectObjects": true,
                 "enforceConst": true,
-                "ignoreEnums": false,
+                "ignoreEnums": true,
+                "ignoreDefaultValues": true,
                 "ignoreNumericLiteralTypes": true,
                 "ignoreReadonlyClassProperties": true
             }
@@ -160,8 +163,11 @@
         "line-comment-position": "off",
         "max-len": "off",
         "multiline-comment-style": "off",
+        "no-await-in-loop": "off",
         "no-console": "off",
+        "no-continue": "off",
         "no-inline-comments": "off",
+        "no-ternary": "off",
         "no-undefined": "off",
         "no-warning-comments": "warn",
         "object-curly-spacing": "off",
