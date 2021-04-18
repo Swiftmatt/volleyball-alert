@@ -13,7 +13,7 @@
         "test:e2e": "jest --config ./test/jest-e2e.json"
     },
     "dependencies": {
-        "date-fns": "^2.16.1",
+        "date-fns": "^2.21.1",
         "dotenv": "^8.2.0",
         "handlebars": "^4.7.7",
         "jsdom": "^16.4.0",
