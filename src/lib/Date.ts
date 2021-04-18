@@ -1,7 +1,18 @@
-// eslint-disable-next-line @typescript-eslint/no-magic-numbers
-type DayOfTheWeekNumber = 0 | 1 | 2 | 3 | 4 | 5 | 6;
+import * as DateFns from 'date-fns';
 
-export enum Day {
+
+// Representative value for type: DateFns.Day
+export enum DayOfTheWeekNumber {
+    Sunday = 0,
+    Monday = 1,
+    Tuesday = 2,
+    Wednesday = 3,
+    Thursday = 4,
+    Friday = 5,
+    Saturday = 6,
+}
+
+export enum DayOfTheWeek {
     Sunday = 'Sunday',
     Monday = 'Monday',
     Tuesday = 'Tuesday',
@@ -11,17 +22,26 @@ export enum Day {
     Saturday = 'Saturday',
 }
 
-export const dayOfTheWeekNumberMap: Record<DayOfTheWeekNumber, Day> = {
-    0: Day.Sunday,
-    1: Day.Monday,
-    2: Day.Tuesday,
-    3: Day.Wednesday,
-    4: Day.Thursday,
-    5: Day.Friday,
-    6: Day.Saturday,
-};
 
-export function getDayOfTheWeekFromDate(date: Date): Day {
-    const dayOfTheWeekNumber = date.getDay() as DayOfTheWeekNumber;
-    return dayOfTheWeekNumberMap[dayOfTheWeekNumber];
+export const DAY_OF_THE_WEEK_NUMBER_LABEL_MAP: Record<DateFns.Day, DayOfTheWeek> = {
+    [DayOfTheWeekNumber.Sunday]: DayOfTheWeek.Sunday,
+    [DayOfTheWeekNumber.Monday]: DayOfTheWeek.Monday,
+    [DayOfTheWeekNumber.Tuesday]: DayOfTheWeek.Tuesday,
+    [DayOfTheWeekNumber.Wednesday]: DayOfTheWeek.Wednesday,
+    [DayOfTheWeekNumber.Thursday]: DayOfTheWeek.Thursday,
+    [DayOfTheWeekNumber.Friday]: DayOfTheWeek.Friday,
+    [DayOfTheWeekNumber.Saturday]: DayOfTheWeek.Saturday,
+} as const;
+
+
+function isDayOfTheWeekNumber(num: number): num is DateFns.Day {
+    return !Number.isNaN(num) && Object.values(DayOfTheWeekNumber).includes(num);
+}
+
+export function getDayOfTheWeekFromDate(date: Date): DayOfTheWeek {
+    const dayOfTheWeekNumber = date.getDay();
+    if ( !isDayOfTheWeekNumber(dayOfTheWeekNumber) ) {
+        throw new Error('Impossible: Value from `getDay` is not a day of the week number.');
+    }
+    return DAY_OF_THE_WEEK_NUMBER_LABEL_MAP[dayOfTheWeekNumber];
 }

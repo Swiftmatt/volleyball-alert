@@ -1,4 +1,4 @@
-import { Day } from 'src/lib/Date';
+import { DayOfTheWeek } from 'src/lib/Date';
 import type { TeamConfig } from 'src/models/Team';
 import { VenueName } from 'src/models/Venue';
 import {
@@ -13,7 +13,7 @@ export const teams: TeamConfig[] = [
             peopleContactMap[People.VolleyballPlayer_EmailExample],
         ],
         league: {
-            dayOfTheWeek: Day.Wednesday,
+            dayOfTheWeek: DayOfTheWeek.Wednesday,
             id: '100',
             venue: {
                 name: VenueName.ToledoSportAndSocialClub,
