@@ -1160,11 +1160,6 @@
   dependencies:
     "@babel/types" "^7.3.0"
 
-"@types/bluebird@*":
-  version "3.5.32"
-  resolved "https://npm.velocity.org/@types%2fbluebird/-/bluebird-3.5.32.tgz#381e7b59e39f010d20bbf7e044e48f5caf1ab620"
-  integrity sha512-dIOxFfI0C+jz89g6lQ+TqhGgPQ0MxSnh/E4xuC0blhFtyW269+mPG5QeLgbdwst/LvdP8o1y0o/Gz5EHXLec/g==
-
 "@types/caseless@*":
   version "0.12.2"
   resolved "https://npm.velocity.org/@types%2fcaseless/-/caseless-0.12.2.tgz#f65d3d6389e01eeb458bd54dc8f52b95a9463bc8"
@@ -1272,12 +1267,11 @@
   resolved "https://npm.velocity.org/@types%2fprettier/-/prettier-2.1.2.tgz#4929992f87a0129f4960a110faeb526210562e7b"
   integrity sha512-IiPhNnenzkqdSdQH3ifk9LoX7oQe61ZlDdDO4+MUv6FyWdPGDPr26gCPVs3oguZEMq//nFZZpwUZcVuNJsG+DQ==
 
-"@types/request-promise@^4.1.46":
-  version "4.1.46"
-  resolved "https://npm.velocity.org/@types%2frequest-promise/-/request-promise-4.1.46.tgz#37df6efae984316dfbfbbe8fcda37f3ba52822f2"
-  integrity sha512-3Thpj2Va5m0ji3spaCk8YKrjkZyZc6RqUVOphA0n/Xet66AW/AiOAs5vfXhQIL5NmkaO7Jnun7Nl9NEjJ2zBaw==
+"@types/request-promise-native@^1.0.17":
+  version "1.0.17"
+  resolved "https://npm.velocity.org/@types%2frequest-promise-native/-/request-promise-native-1.0.17.tgz#74a2d7269aebf18b9bdf35f01459cf0a7bfc7fab"
+  integrity sha512-05/d0WbmuwjtGMYEdHIBZ0tqMJJQ2AD9LG2F6rKNBGX1SSFR27XveajH//2N/XYtual8T9Axwl+4v7oBtPUZqg==
   dependencies:
-    "@types/bluebird" "*"
     "@types/request" "*"
 
 "@types/request@*":
@@ -1946,10 +1940,10 @@ data-urls@^2.0.0:
     whatwg-mimetype "^2.3.0"
     whatwg-url "^8.0.0"
 
-date-fns@^2.16.1:
-  version "2.21.1"
-  resolved "https://npm.velocity.org/date-fns/-/date-fns-2.21.1.tgz#679a4ccaa584c0706ea70b3fa92262ac3009d2b0"
-  integrity sha512-m1WR0xGiC6j6jNFAyW4Nvh4WxAi4JF4w9jRJwSI8nBmNcyZXPcP9VUQG+6gHQXAmqaGEKDKhOqAtENDC941UkA==
+date-fns@^2.21.1:
+  version "2.22.1"
+  resolved "https://npm.velocity.org/date-fns/-/date-fns-2.22.1.tgz#1e5af959831ebb1d82992bf67b765052d8f0efc4"
+  integrity sha512-yUFPQjrxEmIsMqlHhAhmxkuH769baF21Kk+nZwZGyrMoyLA+LugaQtC0+Tqf9CBUUULWwUJt6Q5ySI3LJDDCGg==
 
 debug@^2.2.0, debug@^2.3.3:
   version "2.6.9"

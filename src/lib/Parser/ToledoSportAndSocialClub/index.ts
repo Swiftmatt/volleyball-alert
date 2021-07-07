@@ -1,16 +1,16 @@
 import * as DateFns from 'date-fns';
 import { JSDOM } from 'jsdom';
-import type { StatusCodeError } from 'request-promise/errors';
 import { URL } from 'url';
 
-import type { League } from 'src/models/League';
-import type { Match, MatchParsed } from 'src/models/Match';
-import type { TeamConfig, TeamParsed } from 'src/models/Team';
-import { getVenueInfoFromVenueName } from 'src/models/Venue';
+import { onRejectJsdomFromUrl } from 'src/lib/Parser/error';
 import {
     isNil,
     isTwoNumberArray,
 } from 'src/lib/Util';
+import type { League } from 'src/models/League';
+import type { Match, MatchParsed } from 'src/models/Match';
+import type { TeamConfig, TeamParsed } from 'src/models/Team';
+import { getVenueInfoFromVenueName } from 'src/models/Venue';
 
 
 function createToledoSportAndSocialClubUrl(teamConfig: TeamConfig): string {
@@ -155,21 +155,7 @@ function getTimeFromCell(datetimeRaw: string): MatchParsed['datetime'] {
 // eslint-disable-next-line max-lines-per-function,max-statements
 export async function parseToledoSportAndSocialClubLeague(teamConfig: TeamConfig): Promise<Match[]> {
     const url = createToledoSportAndSocialClubUrl(teamConfig);
-    const dom = await JSDOM.fromURL(url).catch((err: StatusCodeError) => {
-        const {
-            response,
-            statusCode,
-        } = err;
-        const statusMessage = response.statusMessage ?? '';
-
-        const errorCodeMessage = [
-            statusCode,
-            statusMessage,
-        ].join(': ');
-
-        console.error(errorCodeMessage);
-        throw new Error(`An error occurred while trying to fetch page content from URL. (${url})`);
-    });
+    const dom = await JSDOM.fromURL(url).catch(onRejectJsdomFromUrl);
 
     const { body } = dom
         .window
