@@ -18,11 +18,11 @@ export type VenueConfig = Pick<Venue, 'name'>;
 
 export const venueMap: Record<VenueName, Venue> = {
     [VenueName.ForestViewLanes]: {
-        baseUrl: 'https://forestviewlanes.bracketpal.com/',
+        baseUrl: 'https://forestviewlanes.bracketpal.com',
         name: VenueName.ForestViewLanes,
     },
     [VenueName.PremierAcademy]: {
-        baseUrl: 'https://www.premiervolleyball.com/',
+        baseUrl: 'https://www.premiervolleyball.com',
         name: VenueName.PremierAcademy,
     },
     [VenueName.ToledoSportAndSocialClub]: {
