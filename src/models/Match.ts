@@ -15,6 +15,7 @@ export type Match = {
 export type MatchParsed = Merge<
     Pick<Match, 'court' | 'datetime'>,
     {
+        // TODO: convert this to opponentTeam
         teams: [TeamParsed, TeamParsed];
     }
 >;
