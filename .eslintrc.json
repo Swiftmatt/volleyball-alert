@@ -156,6 +156,13 @@
             "error",
             "consistent"
         ],
+        "generator-star-spacing": [
+            "error",
+            {
+                "before": false,
+                "after": true
+            }
+        ],
         "linebreak-style": [
             "error",
             "unix"
@@ -167,6 +174,12 @@
         "no-console": "off",
         "no-continue": "off",
         "no-inline-comments": "off",
+        "no-plusplus": [
+            "error",
+            {
+                "allowForLoopAfterthoughts": true
+            }
+        ],
         "no-ternary": "off",
         "no-undefined": "off",
         "no-warning-comments": "warn",
