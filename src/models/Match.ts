@@ -1,5 +1,3 @@
-import type { Merge } from 'ts-essentials';
-
 import type { League } from 'src/models/League';
 import type { Team, TeamParsed } from 'src/models/Team';
 
@@ -12,10 +10,4 @@ export type Match = {
     team: Team;
 };
 
-export type MatchParsed = Merge<
-    Pick<Match, 'court' | 'datetime'>,
-    {
-        // TODO: convert this to opponentTeam
-        teams: [TeamParsed, TeamParsed];
-    }
->;
+export type MatchParsed = Pick<Match, 'court' | 'datetime' | 'opponentTeam'>;

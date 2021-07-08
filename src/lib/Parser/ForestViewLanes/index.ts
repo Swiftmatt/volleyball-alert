@@ -17,6 +17,7 @@ import {
     MatchParsed,
 } from 'src/models/Match';
 import {
+    Team,
     TeamConfig,
     TeamParsed,
 } from 'src/models/Team';
@@ -36,22 +37,6 @@ function createForestViewLanesUrl(teamConfig: TeamConfig, venue: Venue): string 
 
 // eslint-disable-next-line max-lines-per-function
 function getMatchesParsed(dom: JSDOM): MatchParsed[] {
-    const teamName = getTeamName(
-        dom,
-        dom.window.document,
-        '/html/body/div[1]/div[3]/div/div/div[3]',
-    );
-    const teamRecord = getTeamRecord(
-        dom,
-        dom.window.document,
-        '/html/body/div[1]/div[3]/div/div/table/tbody/tr/td[2]/div[2]/table/tbody/tr/td[1]',
-    );
-
-    const team = {
-        name: teamName,
-        record: teamRecord,
-    };
-
     const tableRows = [
         ...getNodeAtXpath(
             dom,
@@ -81,12 +66,11 @@ function getMatchesParsed(dom: JSDOM): MatchParsed[] {
             name: opponentName,
             record: opponentRecord,
         };
-        const teams = getTeams(team, opponentTeam);
 
         return {
             court,
             datetime,
-            teams,
+            opponentTeam,
         };
     });
 }
@@ -136,35 +120,23 @@ function getMatchDatetime(date: string, time: string): MatchParsed['datetime'] {
     );
 }
 
-function getMatches(matchesParsed: MatchParsed[], teamConfig: TeamConfig, league: League, url: string): Match[] {
+// eslint-disable-next-line max-params
+function getMatches(dom: JSDOM, matchesParsed: MatchParsed[], teamConfig: TeamConfig, league: League, url: string): Match[] {
     return matchesParsed.map(matchParsed => {
         const {
             court,
             datetime,
-            teams,
+            opponentTeam,
         } = matchParsed;
 
-        const team = teams.find(team => team.name === teamConfig.name);
-        const opponentTeam = teams.find(team => team.name !== teamConfig.name);
-
-        if ( isNil(team) ) {
-            throw new Error(`Unable to find matching team with the provided teamName. (${teamConfig.name})`);
-        }
-
-        if ( isNil(opponentTeam) ) {
-            throw new Error(`Unable to find opposing team with the provided teamName. (${teamConfig.name})`);
-        }
+        const team = getTeam(dom, teamConfig, url);
 
         return {
             court,
             datetime,
             league,
             opponentTeam,
-            team: {
-                ...teamConfig,
-                ...team,
-                url,
-            },
+            team,
         };
     });
 }
@@ -208,25 +180,26 @@ function getOpponentRecord(dom: JSDOM, contextNode: Node, xpath: string): TeamPa
     return opponentRecord;
 }
 
-function getTeamName(dom: JSDOM, contextNode: Node, xpath: string): TeamParsed['name'] {
-    const nameRaw = getFirstValueAtXpath({
-        contextNode,
+function getTeam(dom: JSDOM, teamConfig: TeamConfig, url: Team['url']): Team {
+    const {
+        additionalContacts,
+        members,
+        name,
+    } = teamConfig;
+
+    const record = getTeamRecord(
         dom,
-        xpath,
-    });
+        dom.window.document,
+        '/html/body/div[1]/div[3]/div/div/table/tbody/tr/td[2]/div[2]/table/tbody/tr/td[1]',
+    );
 
-    const nameRegex = /\s*Team: (?<teamName>.+)\s*/gmu;
-    const nameMatches = nameRegex.exec(nameRaw);
-
-    const teamNameGroups = nameMatches?.groups;
-    if (
-        isNil(teamNameGroups)
-        || isNil(teamNameGroups.teamName)
-    ) {
-        throw new Error(`Unable to parse team name. (${nameRaw})`);
-    }
-
-    return teamNameGroups.teamName;
+    return {
+        additionalContacts,
+        members,
+        name,
+        record,
+        url,
+    };
 }
 
 function getTeamRecord(dom: JSDOM, contextNode: Node, xpath: string): TeamParsed['record'] {
@@ -260,13 +233,6 @@ function getTeamRecord(dom: JSDOM, contextNode: Node, xpath: string): TeamParsed
     return teamRecord;
 }
 
-function getTeams(team1: TeamParsed, team2: TeamParsed): MatchParsed['teams'] {
-    return [
-        team1,
-        team2,
-    ];
-}
-
 function getTime(dom: JSDOM, contextNode: Node, xpath: string): string {
     return getFirstValueAtXpath({
         contextNode,
@@ -284,7 +250,7 @@ export async function parseForestViewLanesLeague(teamConfig: TeamConfig): Promis
     const matchesParsed = getMatchesParsed(dom);
 
     const league = getLeague(dom, teamConfig, venue);
-    const matches = getMatches(matchesParsed, teamConfig, league, url);
+    const matches = getMatches(dom, matchesParsed, teamConfig, league, url);
 
     return matches;
 }
