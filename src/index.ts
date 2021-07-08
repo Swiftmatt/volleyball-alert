@@ -46,7 +46,6 @@ async function main(): Promise<void> {
 
         for (const match of todaysMatches) {
             const message = await createMessageFromMatch(match);
-            console.log(JSON.stringify(message, null, 4));
 
             const contacts = [
                 ...match.team.members,
@@ -63,9 +62,11 @@ async function main(): Promise<void> {
                     to: mailAddress.address,
                 });
 
+                console.log(JSON.stringify({ ...mailOptions }, null, 4));
+
                 if (SHOULD_SEND_TEXT_MESSAGES) {
-                    console.log(JSON.stringify(mailOptions, null, 4));
-                    await transporter.sendMail(mailOptions);
+                    const sentMessageInfo = await transporter.sendMail(mailOptions);
+                    console.log(JSON.stringify({ sentMessageInfo }, null, 4));
                     continue;
                 }
             }
