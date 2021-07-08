@@ -35,44 +35,6 @@ function createForestViewLanesUrl(teamConfig: TeamConfig, venue: Venue): string 
     return url.toString();
 }
 
-function getMatchesParsed(dom: JSDOM): MatchParsed[] {
-    const tableRows = [
-        ...getNodeAtXpath(
-            dom,
-            '/html/body/div[1]/div[3]/div/div/table/tbody/tr/td[2]/div[4]/table/tbody/tr',
-            dom.window.document,
-        ),
-    ];
-
-    // Remove the first row as it's just the table header.
-    tableRows.shift();
-
-    return tableRows.map(tableRow => {
-        if ( isNil(tableRow) ) {
-            throw new Error('A `tableRow` was null.');
-        }
-
-        const court = getCourt(dom, tableRow, 'td[3]');
-
-        const date = getDate(dom, tableRow, 'td[1]');
-        const time = getTime(dom, tableRow, 'td[2]');
-        const datetime = getMatchDatetime(date, time);
-
-        const opponentName = getOpponentName(dom, tableRow, 'td[4]/a[1]');
-        const opponentRecord = getOpponentRecord(dom, tableRow, 'td[4]/span[1]');
-        const opponentTeam = {
-            name: opponentName,
-            record: opponentRecord,
-        };
-
-        return {
-            court,
-            datetime,
-            opponentTeam,
-        };
-    });
-}
-
 function getCourt(dom: JSDOM, contextNode: Node, xpath: string): MatchParsed['court'] {
     const court = getFirstValueAtXpath({
         contextNode,
@@ -132,6 +94,44 @@ function getMatches(matchesParsed: MatchParsed[], team: Team, league: League): M
             league,
             opponentTeam,
             team,
+        };
+    });
+}
+
+function getMatchesParsed(dom: JSDOM): MatchParsed[] {
+    const tableRows = [
+        ...getNodeAtXpath(
+            dom,
+            '/html/body/div[1]/div[3]/div/div/table/tbody/tr/td[2]/div[4]/table/tbody/tr',
+            dom.window.document,
+        ),
+    ];
+
+    // Remove the first row as it's just the table header.
+    tableRows.shift();
+
+    return tableRows.map(tableRow => {
+        if ( isNil(tableRow) ) {
+            throw new Error('A `tableRow` was null.');
+        }
+
+        const court = getCourt(dom, tableRow, 'td[3]');
+
+        const date = getDate(dom, tableRow, 'td[1]');
+        const time = getTime(dom, tableRow, 'td[2]');
+        const datetime = getMatchDatetime(date, time);
+
+        const opponentName = getOpponentName(dom, tableRow, 'td[4]/a[1]');
+        const opponentRecord = getOpponentRecord(dom, tableRow, 'td[4]/span[1]');
+        const opponentTeam = {
+            name: opponentName,
+            record: opponentRecord,
+        };
+
+        return {
+            court,
+            datetime,
+            opponentTeam,
         };
     });
 }
