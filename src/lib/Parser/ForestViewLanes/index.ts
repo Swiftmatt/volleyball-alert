@@ -35,7 +35,6 @@ function createForestViewLanesUrl(teamConfig: TeamConfig, venue: Venue): string 
     return url.toString();
 }
 
-// eslint-disable-next-line max-lines-per-function
 function getMatchesParsed(dom: JSDOM): MatchParsed[] {
     const tableRows = [
         ...getNodeAtXpath(
@@ -48,7 +47,6 @@ function getMatchesParsed(dom: JSDOM): MatchParsed[] {
     // Remove the first row as it's just the table header.
     tableRows.shift();
 
-    // eslint-disable-next-line max-statements
     return tableRows.map(tableRow => {
         if ( isNil(tableRow) ) {
             throw new Error('A `tableRow` was null.');
@@ -120,16 +118,13 @@ function getMatchDatetime(date: string, time: string): MatchParsed['datetime'] {
     );
 }
 
-// eslint-disable-next-line max-params
-function getMatches(dom: JSDOM, matchesParsed: MatchParsed[], teamConfig: TeamConfig, league: League, url: string): Match[] {
+function getMatches(matchesParsed: MatchParsed[], team: Team, league: League): Match[] {
     return matchesParsed.map(matchParsed => {
         const {
             court,
             datetime,
             opponentTeam,
         } = matchParsed;
-
-        const team = getTeam(dom, teamConfig, url);
 
         return {
             court,
@@ -241,7 +236,6 @@ function getTime(dom: JSDOM, contextNode: Node, xpath: string): string {
     });
 }
 
-// eslint-disable-next-line max-lines-per-function,max-statements
 export async function parseForestViewLanesLeague(teamConfig: TeamConfig): Promise<Match[]> {
     const venue = getVenueInfoFromVenueName(teamConfig.league.venue.name);
     const url = createForestViewLanesUrl(teamConfig, venue);
@@ -249,8 +243,9 @@ export async function parseForestViewLanesLeague(teamConfig: TeamConfig): Promis
     const dom = await getDomFromUrl(url);
     const matchesParsed = getMatchesParsed(dom);
 
+    const team = getTeam(dom, teamConfig, url);
     const league = getLeague(dom, teamConfig, venue);
-    const matches = getMatches(dom, matchesParsed, teamConfig, league, url);
+    const matches = getMatches(matchesParsed, team, league);
 
     return matches;
 }
