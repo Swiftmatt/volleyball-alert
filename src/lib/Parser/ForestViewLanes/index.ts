@@ -27,7 +27,7 @@ import {
 } from 'src/models/Venue';
 
 
-function createForestViewLanesUrl(teamConfig: TeamConfig, venue: Venue): string {
+function createForestViewLanesUrl(teamConfig: TeamConfig, venue: Venue): Team['url'] {
     const { baseUrl } = venue;
     const { id } = teamConfig.league;
 
@@ -237,11 +237,10 @@ export async function parseForestViewLanesLeague(teamConfig: TeamConfig): Promis
     const url = createForestViewLanesUrl(teamConfig, venue);
 
     const dom = await getDomFromUrl(url);
-    const matchesParsed = getMatchesParsed(dom);
 
+    const matchesParsed = getMatchesParsed(dom);
     const team = getTeam(dom, teamConfig, url);
     const league = getLeague(dom, teamConfig, venue);
-    const matches = getMatches(matchesParsed, team, league);
 
-    return matches;
+    return getMatches(matchesParsed, team, league);
 }
