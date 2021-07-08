@@ -35,20 +35,20 @@ function createForestViewLanesUrl(teamConfig: TeamConfig, venue: Venue): string 
     return url.toString();
 }
 
-function getCourt(dom: JSDOM, contextNode: Node, xpath: string): MatchParsed['court'] {
+function getCourt(dom: JSDOM, contextNode: Node): MatchParsed['court'] {
     const court = getFirstValueAtXpath({
         contextNode,
         dom,
-        xpath,
+        xpath: 'td[3]',
     });
     return Number(court);
 }
 
-function getDate(dom: JSDOM, contextNode: Node, xpath: string): string {
+function getDate(dom: JSDOM, contextNode: Node): string {
     return getFirstValueAtXpath({
         contextNode,
         dom,
-        xpath,
+        xpath: 'td[1]',
     });
 }
 
@@ -115,14 +115,14 @@ function getMatchesParsed(dom: JSDOM): MatchParsed[] {
             throw new Error('A `tableRow` was null.');
         }
 
-        const court = getCourt(dom, tableRow, 'td[3]');
+        const court = getCourt(dom, tableRow);
 
-        const date = getDate(dom, tableRow, 'td[1]');
-        const time = getTime(dom, tableRow, 'td[2]');
+        const date = getDate(dom, tableRow);
+        const time = getTime(dom, tableRow);
         const datetime = getMatchDatetime(date, time);
 
-        const opponentName = getOpponentName(dom, tableRow, 'td[4]/a[1]');
-        const opponentRecord = getOpponentRecord(dom, tableRow, 'td[4]/span[1]');
+        const opponentName = getOpponentName(dom, tableRow);
+        const opponentRecord = getOpponentRecord(dom, tableRow);
         const opponentTeam = {
             name: opponentName,
             record: opponentRecord,
@@ -136,19 +136,19 @@ function getMatchesParsed(dom: JSDOM): MatchParsed[] {
     });
 }
 
-function getOpponentName(dom: JSDOM, contextNode: Node, xpath: string): TeamParsed['name'] {
+function getOpponentName(dom: JSDOM, contextNode: Node): TeamParsed['name'] {
     return getFirstValueAtXpath({
         contextNode,
         dom,
-        xpath,
+        xpath: 'td[4]/a[1]',
     });
 }
 
-function getOpponentRecord(dom: JSDOM, contextNode: Node, xpath: string): TeamParsed['record'] {
+function getOpponentRecord(dom: JSDOM, contextNode: Node): TeamParsed['record'] {
     const opponentRecordRaw = getFirstValueAtXpath({
         contextNode,
         dom,
-        xpath,
+        xpath: 'td[4]/span[1]',
     });
 
     const recordRegex = /Current\s*Record:\s*(?<wins>\d+)-(?<loses>\d+)/gmu;
@@ -182,11 +182,7 @@ function getTeam(dom: JSDOM, teamConfig: TeamConfig, url: Team['url']): Team {
         name,
     } = teamConfig;
 
-    const record = getTeamRecord(
-        dom,
-        dom.window.document,
-        '/html/body/div[1]/div[3]/div/div/table/tbody/tr/td[2]/div[2]/table/tbody/tr/td[1]',
-    );
+    const record = getTeamRecord(dom, dom.window.document);
 
     return {
         additionalContacts,
@@ -197,11 +193,11 @@ function getTeam(dom: JSDOM, teamConfig: TeamConfig, url: Team['url']): Team {
     };
 }
 
-function getTeamRecord(dom: JSDOM, contextNode: Node, xpath: string): TeamParsed['record'] {
+function getTeamRecord(dom: JSDOM, contextNode: Node): TeamParsed['record'] {
     const recordRaw = getFirstValueAtXpath({
         contextNode,
         dom,
-        xpath,
+        xpath: '/html/body/div[1]/div[3]/div/div/table/tbody/tr/td[2]/div[2]/table/tbody/tr/td[1]',
     });
 
     const recordRegex = /Games:\s*(?<wins>\d+)\s*- \s*(?<loses>\d+)\s*\(\d+%\)/gmu;
@@ -228,11 +224,11 @@ function getTeamRecord(dom: JSDOM, contextNode: Node, xpath: string): TeamParsed
     return teamRecord;
 }
 
-function getTime(dom: JSDOM, contextNode: Node, xpath: string): string {
+function getTime(dom: JSDOM, contextNode: Node): string {
     return getFirstValueAtXpath({
         contextNode,
         dom,
-        xpath,
+        xpath: 'td[2]',
     });
 }
 
