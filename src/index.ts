@@ -13,10 +13,10 @@ import { getMatchesForTeam } from 'src/lib/Parser';
 
 
 // TODO - Utilize Yargs
-const IS_TEST_MODE = true;
+const SHOULD_SEND_TEXT_MESSAGES = true;
 const OVERRIDE_DATE = '';
 const ME: People | null = null;
-const SHOULD_ONLY_SEND_TO_ME = true;
+const SHOULD_ONLY_SEND_TO_ME = false;
 
 
 (async () => {
@@ -53,7 +53,7 @@ async function main(): Promise<void> {
                 ...match.team.additionalContacts,
             ];
             for (const contact of contacts) {
-                const isSendingToMe = SHOULD_ONLY_SEND_TO_ME && contact.name === ME;
+                const isSendingToMe = contact.name === ME;
                 if (SHOULD_ONLY_SEND_TO_ME && !isSendingToMe) {
                     continue;
                 }
@@ -63,7 +63,7 @@ async function main(): Promise<void> {
                     to: mailAddress.address,
                 });
 
-                if (!IS_TEST_MODE) {
+                if (SHOULD_SEND_TEXT_MESSAGES) {
                     console.log(JSON.stringify(mailOptions, null, 4));
                     await transporter.sendMail(mailOptions);
                     continue;
