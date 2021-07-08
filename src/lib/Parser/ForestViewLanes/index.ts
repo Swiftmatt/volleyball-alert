@@ -100,11 +100,11 @@ function getMatches(matchesParsed: MatchParsed[], team: Team, league: League): M
 
 function getMatchesParsed(dom: JSDOM): MatchParsed[] {
     const tableRows = [
-        ...getNodeAtXpath(
+        ...getNodeAtXpath({
+            contextNode: dom.window.document,
             dom,
-            '/html/body/div[1]/div[3]/div/div/table/tbody/tr/td[2]/div[4]/table/tbody/tr',
-            dom.window.document,
-        ),
+            xpath: '/html/body/div[1]/div[3]/div/div/table/tbody/tr/td[2]/div[4]/table/tbody/tr',
+        }),
     ];
 
     // Remove the first row as it's just the table header.

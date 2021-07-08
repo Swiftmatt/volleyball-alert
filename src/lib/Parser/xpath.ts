@@ -44,10 +44,20 @@ export function getFirstValueAtXpath(args: XpathArgs): string {
     return value;
 }
 
-export function* getNodeAtXpath(dom: JSDOM, xpath: string, context: Node): Generator<Node | null> {
+export function* getNodeAtXpath(args: XpathArgs): Generator<Node | null> {
+    const {
+        contextNode,
+        dom,
+        xpath,
+    } = args;
+
+    if ( isNil(contextNode) ) {
+        throw new Error('The provided `contextNode` is null.');
+    }
+
     const results = dom.window.document.evaluate(
         xpath,
-        context,
+        contextNode,
         null,
         dom.window.XPathResult.ORDERED_NODE_ITERATOR_TYPE,
     );
