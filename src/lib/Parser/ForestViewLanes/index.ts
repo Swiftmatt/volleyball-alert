@@ -115,9 +115,21 @@ function getMatchesParsed(dom: JSDOM): MatchParsed[] {
             throw new Error('A `tableRow` was null.');
         }
 
+        const date = getDate(dom, tableRow);
+
+        if ( isMatchABye(dom, tableRow) ) {
+            return {
+                court: 0,
+                datetime: new Date(date),
+                opponentTeam: {
+                    name: 'BYE',
+                    record: [0, 0],
+                },
+            };
+        }
+
         const court = getCourt(dom, tableRow);
 
-        const date = getDate(dom, tableRow);
         const time = getTime(dom, tableRow);
         const datetime = getMatchDatetime(date, time);
 
@@ -232,7 +244,17 @@ function getTime(dom: JSDOM, contextNode: Node): string {
     });
 }
 
+function isMatchABye(dom: JSDOM, contextNode: Node): boolean {
+    const opponentValue = getFirstValueAtXpath({
+        contextNode,
+        dom,
+        xpath: 'td[4]',
+    });
+    return opponentValue === 'BYE';
+}
+
 export async function parseForestViewLanesLeague(teamConfig: TeamConfig): Promise<Match[]> {
+    console.log(`Parsing ${teamConfig.name}`);
     const venue = getVenueInfoFromVenueName(teamConfig.league.venue.name);
     const url = createForestViewLanesUrl(teamConfig, venue);
 
