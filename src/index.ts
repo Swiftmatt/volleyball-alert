@@ -2,7 +2,7 @@ import * as DateFns from 'date-fns';
 
 import { People } from 'config/Contacts';
 import { teamConfigs } from 'config/Teams';
-import { getDayOfTheWeekFromDate } from 'src/lib/Date';
+import { DayOfTheWeek, getDayOfTheWeekFromDate } from 'src/lib/Date';
 import {
     createMailOptions,
     createTransporter,
@@ -21,6 +21,9 @@ const SHOULD_ONLY_SEND_TO_ME = false;
 
 (async () => {
     await main();
+    // await findScheduleConflicts();
+    // await getDayPlayerGameTimesAndDifference(DAY_OF_THE_WEEK, PLAYER);
+    // getTeamConfigs();
 })().catch(err => {
     console.error(err);
     process.exit();
@@ -124,4 +127,69 @@ async function findScheduleConflicts(): Promise<void> {
     const gameConflicts = gameSets.filter(game => game.length > 1);
 
     console.log(gameConflicts);
+}
+
+
+async function getDayPlayerGameTimesAndDifference(day: DayOfTheWeek, player: People): Promise<void> {
+    type DateMatchMap = Record<string, {
+        times: string[];
+        timeValues: number[];
+    }>;
+
+    const dateMatchMap: DateMatchMap = {};
+    for (const teamConfig of teamConfigs) {
+        const doesTeamPlayOnDayOfWeek = teamConfig.league.dayOfTheWeek === day;
+        const isPlayerOnTeam = Boolean(teamConfig.members.filter(member => member.name === player).length);
+        if (!doesTeamPlayOnDayOfWeek || !isPlayerOnTeam) {
+            continue;
+        }
+
+        const matches = await getMatchesForTeam(teamConfig);
+        for (const match of matches) {
+            const dateKey = DateFns.format(
+                match.datetime,
+                'MMM d',
+            );
+
+            const doesDateExistInMap = dateKey in dateMatchMap;
+            if (!doesDateExistInMap) {
+                dateMatchMap[dateKey] = {
+                    times: [],
+                    timeValues: [],
+                };
+            }
+
+            const time = DateFns.format(
+                match.datetime,
+                'h:mm a',
+            );
+            dateMatchMap[dateKey].times.push(time);
+
+            const timeValue = DateFns.format(
+                match.datetime,
+                'h',
+            );
+            dateMatchMap[dateKey].timeValues.push(Number(timeValue));
+        }
+    }
+
+    for (const dateKey of Object.keys(dateMatchMap)) {
+        dateMatchMap[dateKey].times = dateMatchMap[dateKey].times.sort();
+        dateMatchMap[dateKey].timeValues = dateMatchMap[dateKey].timeValues.sort();
+
+        const [
+            time1,
+            time2,
+        ] = dateMatchMap[dateKey].timeValues;
+        const difference = time2 - time1 + -1;
+
+        console.log(`${dateKey}\t- ${difference} hour wait.`);
+    }
+}
+
+
+function getTeamConfigs(): void {
+    console.log(
+        JSON.stringify(teamConfigs, null, 4),
+    );
 }
