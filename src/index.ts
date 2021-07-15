@@ -32,7 +32,7 @@ async function main(): Promise<void> {
     const transporter = await createTransporter();
 
     const today = OVERRIDE_DATE
-        ? new Date(OVERRIDE_DATE)
+        ? new Date(OVERRIDE_DATE + ' 12:00:00')
         : new Date();
     const dayOfTheWeek = getDayOfTheWeekFromDate(today);
 
