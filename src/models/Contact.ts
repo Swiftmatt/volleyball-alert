@@ -2,6 +2,7 @@ export enum Carrier {
     Att = 'Att',
     Sprint = 'Sprint',
     Verizon = 'Verizon',
+    Tmobile = 'Tmobile',
 }
 
 
@@ -23,6 +24,7 @@ export const carrierEmailSuffixMap = {
     [Carrier.Att]: '@mms.att.net',
     [Carrier.Sprint]: '@pm.sprint.com',
     [Carrier.Verizon]: '@vzwpix.com',
+    [Carrier.Tmobile]: '@tmomail.net',
 };
 
 
