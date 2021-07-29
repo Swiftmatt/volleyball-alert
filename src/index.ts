@@ -43,6 +43,7 @@ async function main(): Promise<void> {
         if (teamConfig.league.dayOfTheWeek !== dayOfTheWeek) {
             continue;
         }
+        console.log(`- Parsing ${teamConfig.name}.`);
 
         const matches = await getMatchesForTeam(teamConfig);
         const todaysMatches = matches.filter(match => DateFns.isSameDay(match.datetime, today));
@@ -54,6 +55,14 @@ async function main(): Promise<void> {
                 ...match.team.members,
                 ...match.team.additionalContacts,
             ];
+
+            const time = DateFns.format(
+                match.datetime,
+                'h:mm a',
+            );
+            console.log(`  - ${time} - Court ${match.court}`);
+            console.log(`  - ${match.league.name}`);
+
             for (const contact of contacts) {
                 const isSendingToMe = contact.name === ME;
                 if (SHOULD_ONLY_SEND_TO_ME && !isSendingToMe) {
@@ -65,14 +74,18 @@ async function main(): Promise<void> {
                     to: mailAddress.address,
                 });
 
-                console.log(JSON.stringify({ ...mailOptions }, null, 4));
+                console.log(`    - Sending alert to ${contact.name} (${mailAddress.address}).`);
 
                 if (SHOULD_SEND_TEXT_MESSAGES) {
                     const sentMessageInfo = await transporter.sendMail(mailOptions);
-                    console.log(JSON.stringify({ sentMessageInfo }, null, 4));
-                    continue;
+                    console.log(`      - ${sentMessageInfo.response}`);
+
+                    if (sentMessageInfo.rejected.length) {
+                        console.error(`Email Send Rejected: ${sentMessageInfo.rejected[0]}`);
+                    }
                 }
             }
+            console.log('\n');
         }
     }
 }
