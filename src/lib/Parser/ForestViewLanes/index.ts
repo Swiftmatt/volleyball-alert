@@ -98,7 +98,8 @@ function getMatches(matchesParsed: MatchParsed[], team: Team, league: League): M
     });
 }
 
-function getMatchesParsed(dom: JSDOM): MatchParsed[] {
+// eslint-disable-next-line max-lines-per-function
+function getMatchesParsed(dom: JSDOM): MatchWithoutCalculatedDatetime[] {
     const tableRows = [
         ...getNodeAtXpath({
             contextNode: dom.window.document,
@@ -110,6 +111,7 @@ function getMatchesParsed(dom: JSDOM): MatchParsed[] {
     // Remove the first row as it's just the table header.
     tableRows.shift();
 
+    // eslint-disable-next-line max-statements
     return tableRows.map(tableRow => {
         if ( isNil(tableRow) ) {
             throw new Error('A `tableRow` was null.');
@@ -118,14 +120,20 @@ function getMatchesParsed(dom: JSDOM): MatchParsed[] {
         const date = getDate(dom, tableRow);
 
         if ( isMatchABye(dom, tableRow) ) {
+            // TODO: Figure out a better solution for tracking BYEs
+            /* eslint-disable @typescript-eslint/no-magic-numbers */
             return {
                 court: 0,
                 datetime: new Date(date),
                 opponentTeam: {
                     name: 'BYE',
-                    record: [0, 0],
+                    record: [
+                        0,
+                        0,
+                    ],
                 },
             };
+            /* eslint-enable @typescript-eslint/no-magic-numbers */
         }
 
         const court = getCourt(dom, tableRow);
@@ -244,6 +252,7 @@ function getTime(dom: JSDOM, contextNode: Node): string {
     });
 }
 
+// eslint-disable-next-line @typescript-eslint/naming-convention
 function isMatchABye(dom: JSDOM, contextNode: Node): boolean {
     const opponentValue = getFirstValueAtXpath({
         contextNode,
