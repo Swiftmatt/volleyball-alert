@@ -15,6 +15,7 @@ import { League } from 'src/models/League';
 import {
     Match,
     MatchParsed,
+    MatchWithoutCalculatedDatetime,
 } from 'src/models/Match';
 import {
     Team,
@@ -73,20 +74,38 @@ function getLeagueName(dom: JSDOM): League['name'] {
 }
 
 function getMatchDatetime(date: string, time: string): MatchParsed['datetime'] {
-    return DateFns.parse(
+    const datetime = DateFns.parse(
         `${date}_${time}`,
         'yyyy-MM-dd_ha',
         new Date(),
     );
+
+    // If parsing failed, Invalid Date will be returned. Invalid Date is a Date, whose time value is NaN.
+    const timeValue = Number(datetime);
+    if ( Number.isNaN(timeValue) ) {
+        throw new Error(`An invalid date or time was provided. (${date}/${time})`);
+    }
+
+    return datetime;
 }
 
-function getMatches(matchesParsed: MatchParsed[], team: Team, league: League): Match[] {
-    return matchesParsed.map(matchParsed => {
+function getMatches(matches: MatchWithoutCalculatedDatetime[], team: Team, league: League): Match[] {
+    let lastNonEmptyDate = '';
+    return matches.map(match => {
         const {
             court,
-            datetime,
+            date,
             opponentTeam,
-        } = matchParsed;
+            time,
+        } = match;
+
+        const datetime = (() => {
+            if (date === '') {
+                return getMatchDatetime(lastNonEmptyDate, time);
+            }
+            lastNonEmptyDate = date;
+            return getMatchDatetime(date, time);
+        })();
 
         return {
             court,
@@ -124,7 +143,7 @@ function getMatchesParsed(dom: JSDOM): MatchWithoutCalculatedDatetime[] {
             /* eslint-disable @typescript-eslint/no-magic-numbers */
             return {
                 court: 0,
-                datetime: new Date(date),
+                date,
                 opponentTeam: {
                     name: 'BYE',
                     record: [
@@ -132,6 +151,7 @@ function getMatchesParsed(dom: JSDOM): MatchWithoutCalculatedDatetime[] {
                         0,
                     ],
                 },
+                time: '12pm',
             };
             /* eslint-enable @typescript-eslint/no-magic-numbers */
         }
@@ -139,7 +159,6 @@ function getMatchesParsed(dom: JSDOM): MatchWithoutCalculatedDatetime[] {
         const court = getCourt(dom, tableRow);
 
         const time = getTime(dom, tableRow);
-        const datetime = getMatchDatetime(date, time);
 
         const opponentName = getOpponentName(dom, tableRow);
         const opponentRecord = getOpponentRecord(dom, tableRow);
@@ -150,8 +169,9 @@ function getMatchesParsed(dom: JSDOM): MatchWithoutCalculatedDatetime[] {
 
         return {
             court,
-            datetime,
+            date,
             opponentTeam,
+            time,
         };
     });
 }
@@ -263,15 +283,14 @@ function isMatchABye(dom: JSDOM, contextNode: Node): boolean {
 }
 
 export async function parseForestViewLanesLeague(teamConfig: TeamConfig): Promise<Match[]> {
-    console.log(`Parsing ${teamConfig.name}`);
     const venue = getVenueInfoFromVenueName(teamConfig.league.venue.name);
     const url = createForestViewLanesUrl(teamConfig, venue);
 
     const dom = await getDomFromUrl(url);
 
-    const matchesParsed = getMatchesParsed(dom);
+    const matchesWithoutCalculatedDatetime = getMatchesParsed(dom);
     const team = getTeam(dom, teamConfig, url);
     const league = getLeague(dom, teamConfig, venue);
 
-    return getMatches(matchesParsed, team, league);
+    return getMatches(matchesWithoutCalculatedDatetime, team, league);
 }

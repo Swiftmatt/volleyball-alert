@@ -10,4 +10,9 @@ export type Match = {
     team: Team;
 };
 
+export type MatchWithoutCalculatedDatetime = Pick<Match, 'court' | 'opponentTeam'> & {
+    date: string;
+    time: string;
+};
+
 export type MatchParsed = Pick<Match, 'court' | 'datetime' | 'opponentTeam'>;
