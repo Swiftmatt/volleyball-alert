@@ -16,7 +16,8 @@
       <option name="CHAINED_CALL_DOT_ON_NEW_LINE" value="false" />
       <option name="IMPORT_SORT_MODULE_NAME" value="true" />
     </JSCodeStyleSettings>
-    <MySQLCodeStyleSettings version="2">
+    <MySQLCodeStyleSettings version="6">
+      <option name="USE_GENERAL_STYLE" value="false" />
       <option name="DISABLE_FORMATTING" value="true" />
     </MySQLCodeStyleSettings>
     <TypeScriptCodeStyleSettings version="0">
